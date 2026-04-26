@@ -25,7 +25,10 @@
         .quick-tile.active { background: #333 !important; color: #fff !important; border-color: #000; }
         .quick-tile.danger.active { background: #ce1126 !important; border-color: #ce1126 !important; color: #fff !important; }
 
-        #content-selection-area { display: none; border-top: 3px solid #f0f0f0; margin-top: 25px; padding-top: 25px; animation: fadeIn 0.5s; }
+        #selected-waste-info { display: none; background: #f8f9fa; border: 2px solid #000; padding: 15px; border-radius: 12px; margin-bottom: 20px; justify-content: space-between; align-items: center; }
+        #selected-waste-info.danger-info { border-color: #ce1126; background: #fff5f5; }
+
+        #content-selection-area { display: none; border-top: 3px solid #f0f0f0; margin-top: 10px; padding-top: 25px; animation: fadeIn 0.5s; }
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
 
         .section-title { font-size: 0.9rem; font-weight: 800; text-transform: uppercase; color: #444; margin-bottom: 15px; display: flex; align-items: center; }
@@ -48,7 +51,7 @@
         .zip-tile { width: 38px; height: 42px; text-align: center; font-weight: bold; border: 2px solid #ddd; border-radius: 6px; font-size: 1.2rem; }
         .zip-tile:focus { border-color: #ce1126; outline: none; }
 
-        /* RENDERER - ZMNIEJSZONE CZCIONKI */
+        /* RENDERER */
         #label-render {
             width: 1122px; height: 794px; position: absolute; left: -9999px; 
             background: white; border: 25px solid black; 
@@ -81,7 +84,7 @@
 
         .footer-info { width: 100%; margin-top: auto; display: none; }
         .address-box { border: 5px solid #ce1126; padding: 12px 20px; font-size: 24px; font-weight: 900; margin-bottom: 10px; background: #fff; }
-        .address-box.dotted { border: 5px dashed #ce1126; min-height: 70px; border-top: none; margin-top: -15px; }
+        .address-box dotted { border: 5px dashed #ce1126; min-height: 70px; border-top: none; margin-top: -15px; }
         .date-box { font-size: 18px; font-weight: bold; text-align: right; }
 
         .btn-gen { background: #28a745; color: white; padding: 18px; font-weight: 800; border-radius: 12px; width: 100%; border: none; font-size: 1.5rem; transition: 0.3s; cursor: pointer; }
@@ -96,8 +99,17 @@
         <span class="badge badge-dark">System Zgodny z BDO / ENPROM 2026</span>
     </div>
 
-    <div class="section-title"><span>1</span> WYBIERZ RODZAJ ODPADU</div>
+    <div class="section-title" id="step1-title"><span>1</span> WYBIERZ RODZAJ ODPADU</div>
+    
     <div class="quick-select-grid" id="quick-grid"></div>
+
+    <div id="selected-waste-info">
+        <div>
+            <strong id="info-code" style="font-size: 1.4rem;"></strong><br>
+            <span id="info-name" class="small font-weight-bold"></span>
+        </div>
+        <button class="btn btn-sm btn-outline-secondary" onclick="resetSelection()">Zmień rodzaj odpadu</button>
+    </div>
 
     <div id="content-selection-area">
         <div class="row">
@@ -126,7 +138,7 @@
                     <div class="section-title"><span>4</span> DANE LOKALIZACYJNE</div>
                     
                     <label class="small mb-1">MIEJSCOWOŚĆ (WYBIERZ Z LISTY DLA AUTO-FILL):</label>
-                    <input type="text" id="cityInput" list="city-list" class="form-control mb-3" placeholder="Zacznij pisać: Lutkówka, Otwock..." oninput="handleCityAutoFill(this.value)">
+                    <input type="text" id="cityInput" list="city-list" class="form-control mb-3" placeholder="Zacznij pisać..." oninput="handleCityAutoFill(this.value)">
                     <datalist id="city-list"></datalist>
 
                     <label class="small mb-1">KOD POCZTOWY:</label>
@@ -155,7 +167,6 @@
 <div id="label-render">
     <div class="header-row"><img id="logo-preview-label" src=""></div>
     <div id="danger-header">ODPAD NIEBEZPIECZNY</div>
-    
     <div class="main-content">
         <div id="res-code">00 00 00</div>
         <div id="res-name">NAZWA ODPADU</div>
@@ -164,7 +175,6 @@
             <div class="img-container"><img id="img-waste-label" src=""></div>
         </div>
     </div>
-    
     <div class="footer-info" id="label-footer">
         <div class="address-box">Adres miejsca magazynowania: <span id="lbl-place">-</span></div>
         <div class="address-box dotted">Zmiana miejsca magazynowania i data: .....................................................................</div>
@@ -191,8 +201,8 @@
         { name: "Otwock", zip: "05400", street: "ul. Przemysłowa 10" },
         { name: "Warszawa", zip: "00001", street: "ul. Marszałkowska 1" },
         { name: "Karczew", zip: "05480", street: "ul. Mickiewicza 5" },
-        { name: "Góra Kalwaria", zip: "05530", street: "ul. Budowlanych 2" }
-        { name: "LESZNO", zip: "64111", street: "Gronówko 30" }
+        { name: "Góra Kalwaria", zip: "05530", street: "ul. Budowlanych 2" },
+        { name: "LESZNO", zip: "64111", street: "Gronówko 30" },
         { name: "POLKOWICE", zip: "59100", street: "ul. Energetyków 3" }
     ];
 
@@ -205,7 +215,7 @@
             const isD = w.code.includes('*');
             div.className = `quick-tile ${isD ? 'danger' : ''}`;
             div.innerHTML = `<b>${w.code}</b><small>${w.name}</small><div class="sub-desc">${w.desc}</div>`;
-            div.onclick = () => selectWaste(w, div);
+            div.onclick = () => selectWaste(w);
             grid.appendChild(div);
         });
 
@@ -220,25 +230,22 @@
         if (savedLogo) document.getElementById('logo-preview-label').src = savedLogo;
     };
 
-    function handleCityAutoFill(cityName) {
-        const found = LOCATIONS.find(l => l.name.toLowerCase() === cityName.toLowerCase());
-        if (found) {
-            const digits = found.zip.split('');
-            digits.forEach((d, i) => {
-                document.getElementById('z' + (i+1)).value = d;
-            });
-            document.getElementById('streetInput').value = found.street;
-        }
-        sync();
-    }
-
-    function selectWaste(waste, el) {
+    function selectWaste(waste) {
         currentWaste = waste;
-        document.querySelectorAll('.quick-tile').forEach(t => t.classList.remove('active'));
-        el.classList.add('active');
-        document.getElementById('content-selection-area').style.display = 'block';
-        
         const isD = waste.code.includes('*');
+
+        // Zwijanie interfejsu
+        document.getElementById('quick-grid').style.display = 'none';
+        document.getElementById('step1-title').style.display = 'none';
+        
+        const info = document.getElementById('selected-waste-info');
+        info.style.display = 'flex';
+        isD ? info.classList.add('danger-info') : info.classList.remove('danger-info');
+        document.getElementById('info-code').innerText = waste.code;
+        document.getElementById('info-name').innerText = waste.name;
+
+        // Pokazywanie edycji
+        document.getElementById('content-selection-area').style.display = 'block';
         document.getElementById('extra-fields').style.display = isD ? 'block' : 'none';
         document.getElementById('label-footer').style.display = isD ? 'block' : 'none';
         document.getElementById('waste-upload-box').style.opacity = isD ? '0.2' : '1';
@@ -257,35 +264,31 @@
         sync();
     }
 
+    function resetSelection() {
+        document.getElementById('quick-grid').style.display = 'grid';
+        document.getElementById('step1-title').style.display = 'flex';
+        document.getElementById('selected-waste-info').style.display = 'none';
+        document.getElementById('content-selection-area').style.display = 'none';
+    }
+
     function toggleOption(el, isD) {
         el.classList.toggle(isD ? 'danger-checked' : 'checked');
         sync();
     }
 
-    function previewLogo(event) {
-        const reader = new FileReader();
-        reader.onload = e => { 
-            document.getElementById('logo-preview-label').src = e.target.result; 
-            localStorage.setItem('global_logo', e.target.result);
-        };
-        reader.readAsDataURL(event.target.files[0]);
-    }
-
-    function previewWaste(event) {
-        if(currentWaste?.code.includes('*')) return;
-        const reader = new FileReader();
-        reader.onload = e => { 
-            const img = document.getElementById('img-waste-label');
-            img.src = e.target.result; 
-            img.style.display = 'block';
-        };
-        reader.readAsDataURL(event.target.files[0]);
+    function handleCityAutoFill(cityName) {
+        const found = LOCATIONS.find(l => l.name.toLowerCase() === cityName.toLowerCase());
+        if (found) {
+            const digits = found.zip.split('');
+            digits.forEach((d, i) => { if(i<5) document.getElementById('z' + (i+1)).value = d; });
+            document.getElementById('streetInput').value = found.street;
+        }
+        sync();
     }
 
     function sync() {
         if (!currentWaste) return;
         const isD = currentWaste.code.includes('*');
-
         const sel = Array.from(document.querySelectorAll(isD ? '.danger-checked' : '.checked')).map(i => i.innerText);
         const man = document.getElementById('contentInput').value.toUpperCase();
         let finalContent = sel.join(' / ');
@@ -304,7 +307,6 @@
         
         document.getElementById('lbl-place').innerText = fullAddr.join(', ') || "-";
         document.getElementById('lbl-date').innerText = document.getElementById('dateInput').value || "-";
-
         saveCurrentData();
     }
 
@@ -312,6 +314,22 @@
         t.oninput = () => { if(t.value && i < 4) arr[i+1].focus(); sync(); };
         t.onkeydown = (e) => { if(e.key === "Backspace" && !t.value && i > 0) arr[i-1].focus(); };
     });
+
+    function previewLogo(event) {
+        const reader = new FileReader();
+        reader.onload = e => { 
+            document.getElementById('logo-preview-label').src = e.target.result; 
+            localStorage.setItem('global_logo', e.target.result);
+        };
+        reader.readAsDataURL(event.target.files[0]);
+    }
+
+    function previewWaste(event) {
+        if(currentWaste?.code.includes('*')) return;
+        const reader = new FileReader();
+        reader.onload = e => { document.getElementById('img-waste-label').src = e.target.result; };
+        reader.readAsDataURL(event.target.files[0]);
+    }
 
     function saveCurrentData() {
         if (!currentWaste) return;
@@ -339,23 +357,13 @@
         const btn = document.getElementById('btnGen');
         btn.innerText = "⏳ GENEROWANIE...";
         btn.disabled = true;
-
         try {
-            const canvas = await html2canvas(document.getElementById('label-render'), { 
-                scale: 2, 
-                useCORS: true,
-                width: 1122,
-                height: 794
-            });
+            const canvas = await html2canvas(document.getElementById('label-render'), { scale: 2, useCORS: true, width: 1122, height: 794 });
             const pdf = new jspdf.jsPDF({ orientation: 'l', unit: 'mm', format: 'a4' });
             pdf.addImage(canvas.toDataURL('image/png'), 'PNG', 0, 0, 297, 210);
             pdf.save(`Etykieta_${currentWaste.code.replace(/\s|\*/g,'')}.pdf`);
-        } catch (err) { 
-            alert("Błąd generowania."); 
-        } finally {
-            btn.innerText = "POBIERZ GOTOWĄ ETYKIETĘ (A4 PDF)";
-            btn.disabled = false;
-        }
+        } catch (err) { alert("Błąd generowania."); } 
+        finally { btn.innerText = "POBIERZ GOTOWĄ ETYKIETĘ (A4 PDF)"; btn.disabled = false; }
     }
 </script>
 
