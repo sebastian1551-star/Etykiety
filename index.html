@@ -2,7 +2,7 @@
 <html lang="pl">
 <head>
     <meta charset="UTF-8">
-    <title>GENERATOR ETYKIET ENPROM</title>
+    <title>GENERATOR ETYKIET ENPROM - FINAL</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
@@ -12,86 +12,70 @@
         body { background-color: #f0f2f5; font-family: "Century Gothic", sans-serif; padding-bottom: 50px; }
         .app-card { max-width: 1000px; margin: 20px auto; background: white; padding: 25px; border-radius: 15px; box-shadow: 0 10px 30px rgba(0,0,0,0.15); }
         
-        /* GRID WYBORU */
         .quick-select-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 10px; margin-bottom: 25px; }
         .quick-tile { 
             background: #fff; border: 2px solid #000; padding: 12px; border-radius: 10px; 
             text-align: center; cursor: pointer; transition: 0.2s; display: flex; flex-direction: column;
         }
         .quick-tile:hover { transform: translateY(-2px); box-shadow: 0 5px 15px rgba(0,0,0,0.1); }
-        .quick-tile b { font-size: 1.2rem; display: block; color: #000; }
-        .quick-tile span { font-size: 0.8rem; font-weight: 900; text-transform: uppercase; color: #333; margin: 2px 0; }
-        .quick-tile small { font-size: 0.7rem; color: #666; border-top: 1px solid #eee; padding-top: 5px; }
-        
+        .quick-tile b { font-size: 1.2rem; color: #000; }
         .quick-tile.danger { border-color: #ce1126; }
-        .quick-tile.danger span { color: #ce1126; }
         .quick-tile.active { background: #000 !important; color: #fff !important; }
-        .quick-tile.active span, .quick-tile.active small { color: #fff !important; }
-        .quick-tile.danger.active { background: #ce1126 !important; border-color: #ce1126 !important; }
+        .quick-tile.danger.active { background: #ce1126 !important; }
 
-        /* PANEL KONTROLNY */
         #content-selection-area { display: none; border-top: 2px solid #eee; margin-top: 20px; padding-top: 20px; }
         .checkbox-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 8px; margin-bottom: 15px; }
-        .checkbox-item { background: #f8f9fa; border: 1px solid #dee2e6; padding: 8px; border-radius: 8px; cursor: pointer; font-weight: bold; text-align: center; font-size: 0.85rem; }
-        .checkbox-item.checked { background: #000; color: #fff; border-color: #000; }
-        .checkbox-item.danger-checked { background: #ce1126; color: #fff; border-color: #ce1126; }
+        .checkbox-item { background: #f8f9fa; border: 1px solid #dee2e6; padding: 8px; border-radius: 8px; cursor: pointer; font-weight: bold; text-align: center; }
+        .checkbox-item.checked { background: #000; color: #fff; }
+        .checkbox-item.danger-checked { background: #ce1126; color: #fff; }
 
         .upload-row { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 15px; }
         .photo-box { background: #f8f9fa; border: 1px dashed #adb5bd; padding: 10px; border-radius: 8px; text-align: center; }
-
         #extra-fields { display: none; padding: 15px; border-radius: 12px; background: #fff5f5; border: 1px solid #feb2b2; margin-top: 15px; }
         .zip-container { display: flex; align-items: center; gap: 3px; }
-        .zip-tile { width: 30px; height: 35px; text-align: center; font-size: 16px; font-weight: bold; border: 1px solid #ccc; border-radius: 4px; }
+        .zip-tile { width: 30px; height: 35px; text-align: center; font-weight: bold; border: 1px solid #ccc; border-radius: 4px; }
 
-        /* --- RENDERER PDF (A4 POZIOMO: 1122x794px) --- */
+        /* --- RENDERER PDF --- */
         #label-render {
             width: 1122px; height: 794px; position: absolute; left: -9999px; 
             background: white; border: 25px solid black; 
             display: flex; flex-direction: column; 
-            padding: 20px 40px; box-sizing: border-box; color: black;
-            overflow: hidden; /* Zapobiega wychodzeniu treści */
+            padding: 20px 50px; box-sizing: border-box; color: black;
         }
         #label-render.danger-mode { border-color: #ce1126 !important; }
         
-        .header-row { display: flex; align-items: center; width: 100%; height: 80px; }
-        #logo-preview-label { max-height: 70px; max-width: 350px; object-fit: contain; display: none; }
+        .header-row { width: 100%; height: 60px; display: flex; align-items: center; }
+        #logo-preview-label { max-height: 55px; max-width: 300px; object-fit: contain; }
         
         #danger-header { 
-            display: none; font-size: 55px; font-weight: 900; color: #ce1126; 
+            display: none; font-size: 60px; font-weight: 900; color: #ce1126; 
             border-bottom: 8px solid #ce1126; width: 100%; text-align: center; 
-            margin: 5px 0 15px 0; line-height: 1;
+            margin: 10px 0 20px 0; line-height: 1.1;
         }
         #label-render.danger-mode #danger-header { display: block; }
 
-        /* Środek etykiety - elastyczny, ale nie rozpycha całości */
         .main-content { 
-            flex: 1; 
-            display: flex; flex-direction: column; 
-            justify-content: center; align-items: center; 
-            text-align: center; overflow: hidden;
+            flex: 1; display: flex; flex-direction: column; 
+            justify-content: flex-start; align-items: center; text-align: center;
         }
         
-        #res-code { font-size: 140px; font-weight: 900; line-height: 0.9; margin: 0; letter-spacing: -2px; }
-        #res-name { font-size: 32px; text-transform: uppercase; font-weight: bold; margin-bottom: 10px; }
+        #res-code { font-size: 145px; font-weight: 900; line-height: 1; margin: 10px 0 0 0; letter-spacing: -2px; }
+        #res-name { font-size: 34px; text-transform: uppercase; font-weight: bold; margin-bottom: 25px; }
         
         .photo-and-desc { 
             display: flex; align-items: center; justify-content: space-between; 
-            width: 100%; border-top: 5px solid #000; padding-top: 15px; margin-top: 10px;
-            max-height: 280px;
+            width: 100%; border-top: 6px solid #000; padding-top: 20px;
         }
         #label-render.danger-mode .photo-and-desc { border-top-color: #ce1126; }
         
-        #res-content { font-size: 42px; font-weight: 900; text-transform: uppercase; line-height: 1.1; flex: 1; text-align: left; padding-right: 20px; }
-        #img-waste-label { max-width: 350px; max-height: 250px; border: 4px solid #eee; object-fit: cover; display: none; }
+        #res-content { font-size: 48px; font-weight: 900; text-transform: uppercase; line-height: 1; flex: 1; text-align: left; }
+        .img-container { width: 380px; height: 260px; display: flex; justify-content: center; align-items: center; border: 2px solid #eee; margin-left: 20px; }
+        #img-waste-label { max-width: 100%; max-height: 100%; object-fit: contain; display: none; }
 
-        /* STOPKA - ZAWSZE NA DOLE */
-        .footer-info { 
-            width: 100%; margin-top: auto; padding-top: 10px;
-            display: none; /* Domyślnie ukryte, włączane JS dla danger */
-        }
-        .address-box { border: 3px solid #ce1126; padding: 8px 15px; font-size: 22px; font-weight: 900; margin-bottom: 8px; background: #fff; }
-        .address-box.dotted { border: 3px dashed #ce1126; min-height: 50px; }
-        .date-box { font-size: 18px; font-weight: bold; text-align: right; text-transform: uppercase; }
+        .footer-info { width: 100%; margin-top: auto; padding-bottom: 10px; }
+        .address-box { border: 4px solid #ce1126; padding: 10px 15px; font-size: 24px; font-weight: 900; margin-bottom: 10px; }
+        .address-box.dotted { border: 4px dashed #ce1126; min-height: 60px; }
+        .date-box { font-size: 18px; font-weight: bold; text-align: right; }
 
         .btn-gen { background: #28a745; color: white; padding: 15px; font-weight: bold; border-radius: 10px; width: 100%; border: none; font-size: 1.3rem; }
     </style>
@@ -99,8 +83,7 @@
 <body>
 
 <div class="app-card">
-    <h3 class="text-center mb-4"><b>GENERATOR ETYKIET</b></h3>
-    
+    <h3 class="text-center mb-4"><b>GENERATOR ETYKIET ENPROM</b></h3>
     <div class="quick-select-grid" id="quick-grid"></div>
 
     <div id="content-selection-area">
@@ -111,17 +94,15 @@
                 <input type="text" id="contentInput" class="form-control form-control-sm mb-3" placeholder="Inny opis..." onkeyup="sync()">
             </div>
             <div class="col-md-6">
-                <p class="small mb-1"><b>2. ZDJĘCIA:</b></p>
+                <p class="small mb-1"><b>2. MEDIA:</b></p>
                 <div class="upload-row">
                     <div class="photo-box">
                         <input type="file" accept="image/*" id="logo-input" onchange="previewLogo(event)" style="display: none;">
-                        <button class="btn btn-outline-primary btn-sm btn-block" onclick="document.getElementById('logo-input').click()">🖼️ LOGO FIRMY</button>
-                        <div id="logo-name" class="small mt-1" style="font-size: 10px;">Brak logo</div>
+                        <button class="btn btn-outline-primary btn-sm btn-block" onclick="document.getElementById('logo-input').click()">🖼️ LOGO</button>
                     </div>
                     <div class="photo-box">
                         <input type="file" accept="image/*" id="waste-input" onchange="previewWaste(event)" style="display: none;">
-                        <button class="btn btn-outline-dark btn-sm btn-block" onclick="document.getElementById('waste-input').click()">📸 FOTO ODPADU</button>
-                        <div id="waste-name" class="small mt-1" style="font-size: 10px;">Brak zdjęcia</div>
+                        <button class="btn btn-outline-dark btn-sm btn-block" onclick="document.getElementById('waste-input').click()">📸 FOTO</button>
                     </div>
                 </div>
             </div>
@@ -129,49 +110,35 @@
 
         <div id="extra-fields">
             <div class="row">
-                <div class="col-md-5">
-                    <label class="small mb-0">MIEJSCE SKŁADOWANIA:</label>
-                    <input type="text" id="placeInput" class="form-control form-control-sm" placeholder="Lokalizacja" onkeyup="sync()">
-                </div>
+                <div class="col-md-5"><label class="small mb-0">MIEJSCE:</label><input type="text" id="placeInput" class="form-control form-control-sm" onkeyup="sync()"></div>
                 <div class="col-md-4">
                     <label class="small mb-0">KOD POCZTOWY:</label>
                     <div class="zip-container">
                         <input type="text" class="zip-tile" maxlength="1" id="z1">
-                        <input type="text" class="zip-tile" maxlength="1" id="z2">
-                        <span>-</span>
+                        <input type="text" class="zip-tile" maxlength="1" id="z2"><span>-</span>
                         <input type="text" class="zip-tile" maxlength="1" id="z3">
                         <input type="text" class="zip-tile" maxlength="1" id="z4">
                         <input type="text" class="zip-tile" maxlength="1" id="z5">
                     </div>
                 </div>
-                <div class="col-md-3">
-                    <label class="small mb-0">DATA:</label>
-                    <input type="date" id="dateInput" class="form-control form-control-sm" onchange="sync()">
-                </div>
+                <div class="col-md-3"><label class="small mb-0">DATA:</label><input type="date" id="dateInput" class="form-control form-control-sm" onchange="sync()"></div>
             </div>
         </div>
-
-        <button type="button" id="btnGen" onclick="generatePDF()" class="btn-gen mt-4">POBIERZ ETYKIETĘ (A4 PDF)</button>
+        <button type="button" id="btnGen" onclick="generatePDF()" class="btn-gen mt-4">POBIERZ PDF (A4)</button>
     </div>
 </div>
 
 <div id="label-render">
-    <div class="header-row">
-        <img id="logo-preview-label" src="">
-    </div>
-    
+    <div class="header-row"><img id="logo-preview-label" src=""></div>
     <div id="danger-header">ODPAD NIEBEZPIECZNY</div>
-    
     <div class="main-content">
         <div id="res-code">00 00 00</div>
         <div id="res-name">NAZWA ODPADU</div>
-        
         <div class="photo-and-desc">
             <div id="res-content">---</div>
-            <img id="img-waste-label" src="">
+            <div class="img-container"><img id="img-waste-label" src=""></div>
         </div>
     </div>
-    
     <div class="footer-info" id="label-footer">
         <div class="address-box">LOKALIZACJA: <span id="lbl-place">-</span></div>
         <div class="address-box dotted">ZMIANA MIEJSCA: ................................................................</div>
@@ -194,9 +161,8 @@
     const grid = document.getElementById('quick-grid');
 
     WASTES.forEach(w => {
-        const isDanger = w.code.includes('*');
         const div = document.createElement('div');
-        div.className = `quick-tile ${isDanger ? 'danger' : ''}`;
+        div.className = `quick-tile ${w.code.includes('*') ? 'danger' : ''}`;
         div.innerHTML = `<b>${w.code}</b><span>${w.desc}</span><small>${w.name}</small>`;
         div.onclick = () => selectWaste(w, div);
         grid.appendChild(div);
@@ -204,12 +170,7 @@
 
     window.onload = () => {
         const savedLogo = localStorage.getItem('global_logo');
-        if (savedLogo) {
-            const img = document.getElementById('logo-preview-label');
-            img.src = savedLogo;
-            img.style.display = 'block';
-            document.getElementById('logo-name').innerText = "Logo wczytane";
-        }
+        if (savedLogo) { document.getElementById('logo-preview-label').src = savedLogo; }
     };
 
     function selectWaste(waste, el) {
@@ -217,106 +178,59 @@
         document.querySelectorAll('.quick-tile').forEach(t => t.classList.remove('active'));
         el.classList.add('active');
         document.getElementById('content-selection-area').style.display = 'block';
-        
-        const isDanger = waste.code.includes('*');
-        document.getElementById('extra-fields').style.display = isDanger ? 'block' : 'none';
-        document.getElementById('label-footer').style.display = isDanger ? 'block' : 'none';
-        
+        const isD = waste.code.includes('*');
+        document.getElementById('extra-fields').style.display = isD ? 'block' : 'none';
+        document.getElementById('label-footer').style.display = isD ? 'block' : 'none';
         const label = document.getElementById('label-render');
-        isDanger ? label.classList.add('danger-mode') : label.classList.remove('danger-mode');
-
+        isD ? label.classList.add('danger-mode') : label.classList.remove('danger-mode');
         document.getElementById('res-code').innerText = waste.code;
         document.getElementById('res-name').innerText = waste.name;
-
         loadSavedData(waste.code);
-
-        const cbDiv = document.getElementById('dynamic-checkboxes');
-        cbDiv.innerHTML = waste.items.map(item => `
-            <div class="checkbox-item" onclick="toggleOption(this, ${isDanger})">${item}</div>
-        `).join('');
+        document.getElementById('dynamic-checkboxes').innerHTML = waste.items.map(i => `<div class="checkbox-item" onclick="toggleOption(this, ${isD})">${i}</div>`).join('');
         sync();
     }
 
-    function toggleOption(el, isDanger) {
-        el.classList.toggle(isDanger ? 'danger-checked' : 'checked');
-        sync();
-    }
+    function toggleOption(el, isD) { el.classList.toggle(isD ? 'danger-checked' : 'checked'); sync(); }
 
     function previewLogo(event) {
-        const file = event.target.files[0];
-        if (file) {
-            const reader = new FileReader();
-            reader.onload = e => {
-                const img = document.getElementById('logo-preview-label');
-                img.src = e.target.result;
-                img.style.display = 'block';
-                localStorage.setItem('global_logo', e.target.result);
-                document.getElementById('logo-name').innerText = "Logo OK";
-            };
-            reader.readAsDataURL(file);
-        }
+        const reader = new FileReader();
+        reader.onload = e => { document.getElementById('logo-preview-label').src = e.target.result; localStorage.setItem('global_logo', e.target.result); };
+        reader.readAsDataURL(event.target.files[0]);
     }
 
     function previewWaste(event) {
-        const file = event.target.files[0];
-        if (file) {
-            const reader = new FileReader();
-            reader.onload = e => {
-                const img = document.getElementById('img-waste-label');
-                img.src = e.target.result;
-                img.style.display = 'block';
-                document.getElementById('waste-name').innerText = "Foto OK";
-            };
-            reader.readAsDataURL(file);
-        }
+        const reader = new FileReader();
+        reader.onload = e => { const img = document.getElementById('img-waste-label'); img.src = e.target.result; img.style.display = 'block'; };
+        reader.readAsDataURL(event.target.files[0]);
     }
 
     function sync() {
         if (!currentWaste) return;
-        const isDanger = currentWaste.code.includes('*');
-        const activeClass = isDanger ? 'danger-checked' : 'checked';
-        const selected = Array.from(document.querySelectorAll('.' + activeClass)).map(i => i.innerText);
-        const manual = document.getElementById('contentInput').value.toUpperCase();
-        let final = selected.join(' / ');
-        if (manual) final += (final ? ' / ' : '') + manual;
-        document.getElementById('res-content').innerText = final || "---";
-
-        const place = document.getElementById('placeInput').value;
+        const isD = currentWaste.code.includes('*');
+        const sel = Array.from(document.querySelectorAll(isD ? '.danger-checked' : '.checked')).map(i => i.innerText);
+        const man = document.getElementById('contentInput').value.toUpperCase();
+        let f = sel.join(' / ');
+        if (man) f += (f ? ' / ' : '') + man;
+        document.getElementById('res-content').innerText = f || "---";
         const zip = [1,2,3,4,5].map(i => document.getElementById('z'+i).value).join('');
-        const zipFormatted = zip.length >= 2 ? zip.substring(0,2)+'-'+zip.substring(2) : zip;
-        
-        document.getElementById('lbl-place').innerText = place + (zipFormatted ? ", " + zipFormatted : "");
+        const zipF = zip.length >= 2 ? zip.substring(0,2)+'-'+zip.substring(2) : zip;
+        document.getElementById('lbl-place').innerText = document.getElementById('placeInput').value + (zipF ? ", " + zipF : "");
         document.getElementById('lbl-date').innerText = document.getElementById('dateInput').value || "-";
-
         saveCurrentData();
     }
 
     function saveCurrentData() {
         if (!currentWaste) return;
-        const data = {
-            place: document.getElementById('placeInput').value,
-            z1: document.getElementById('z1').value,
-            z2: document.getElementById('z2').value,
-            z3: document.getElementById('z3').value,
-            z4: document.getElementById('z4').value,
-            z5: document.getElementById('z5').value,
-        };
-        localStorage.setItem('waste_data_' + currentWaste.code, JSON.stringify(data));
+        const d = { p: document.getElementById('placeInput').value, z: [1,2,3,4,5].map(i => document.getElementById('z'+i).value) };
+        localStorage.setItem('waste_data_' + currentWaste.code, JSON.stringify(d));
     }
 
     function loadSavedData(code) {
-        const saved = localStorage.getItem('waste_data_' + code);
-        if (saved) {
-            const data = JSON.parse(saved);
-            document.getElementById('placeInput').value = data.place || "";
-            document.getElementById('z1').value = data.z1 || "";
-            document.getElementById('z2').value = data.z2 || "";
-            document.getElementById('z3').value = data.z3 || "";
-            document.getElementById('z4').value = data.z4 || "";
-            document.getElementById('z5').value = data.z5 || "";
-        } else {
-            document.getElementById('placeInput').value = "";
-            [1,2,3,4,5].forEach(i => document.getElementById('z'+i).value = "");
+        const s = localStorage.getItem('waste_data_' + code);
+        if (s) {
+            const d = JSON.parse(s);
+            document.getElementById('placeInput').value = d.p || "";
+            d.z.forEach((v, i) => document.getElementById('z'+(i+1)).value = v || "");
         }
     }
 
@@ -328,27 +242,14 @@
     async function generatePDF() {
         const btn = document.getElementById('btnGen');
         btn.innerText = "GENEROWANIE...";
-        btn.disabled = true;
         try {
-            const canvas = await html2canvas(document.getElementById('label-render'), { 
-                scale: 2, 
-                useCORS: true,
-                windowWidth: 1122,
-                windowHeight: 794
-            });
-            const imgData = canvas.toDataURL('image/png');
-            const { jsPDF } = window.jspdf;
-            const pdf = new jsPDF({ orientation: 'l', unit: 'mm', format: 'a4' });
-            pdf.addImage(imgData, 'PNG', 0, 0, 297, 210);
+            const canvas = await html2canvas(document.getElementById('label-render'), { scale: 2, useCORS: true, windowWidth: 1122, windowHeight: 794 });
+            const pdf = new jspdf.jsPDF({ orientation: 'l', unit: 'mm', format: 'a4' });
+            pdf.addImage(canvas.toDataURL('image/png'), 'PNG', 0, 0, 297, 210);
             pdf.save(`Etykieta_${currentWaste.code.replace('*','')}.pdf`);
-        } catch (err) {
-            alert("Błąd zapisu.");
-        } finally {
-            btn.innerText = "POBIERZ ETYKIETĘ (A4 PDF)";
-            btn.disabled = false;
-        }
+        } catch (err) { alert("Błąd."); }
+        btn.innerText = "POBIERZ PDF (A4)";
     }
 </script>
-
 </body>
 </html>
