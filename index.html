@@ -13,15 +13,15 @@
         .app-card { max-width: 1000px; margin: 20px auto; background: white; padding: 25px; border-radius: 15px; box-shadow: 0 10px 30px rgba(0,0,0,0.15); }
         
         /* GRID WYBORU */
-        .quick-select-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 10px; margin-bottom: 25px; }
+        .quick-select-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 10px; margin-bottom: 25px; }
         .quick-tile { 
             background: #fff; border: 2px solid #000; padding: 12px; border-radius: 10px; 
             text-align: center; cursor: pointer; transition: 0.2s; display: flex; flex-direction: column;
         }
         .quick-tile:hover { transform: translateY(-2px); box-shadow: 0 5px 15px rgba(0,0,0,0.1); }
         .quick-tile b { font-size: 1.2rem; display: block; color: #000; }
-        .quick-tile span { font-size: 0.9rem; font-weight: 900; text-transform: uppercase; color: #333; margin: 2px 0; }
-        .quick-tile small { font-size: 0.75rem; color: #666; border-top: 1px solid #eee; padding-top: 5px; }
+        .quick-tile span { font-size: 0.8rem; font-weight: 900; text-transform: uppercase; color: #333; margin: 2px 0; }
+        .quick-tile small { font-size: 0.7rem; color: #666; border-top: 1px solid #eee; padding-top: 5px; }
         
         .quick-tile.danger { border-color: #ce1126; }
         .quick-tile.danger span { color: #ce1126; }
@@ -43,39 +43,55 @@
         .zip-container { display: flex; align-items: center; gap: 3px; }
         .zip-tile { width: 30px; height: 35px; text-align: center; font-size: 16px; font-weight: bold; border: 1px solid #ccc; border-radius: 4px; }
 
-        /* --- RENDERER PDF (A4 POZIOMO) --- */
+        /* --- RENDERER PDF (A4 POZIOMO: 1122x794px) --- */
         #label-render {
             width: 1122px; height: 794px; position: absolute; left: -9999px; 
-            background: white; border: 20px solid black; display: flex; flex-direction: column; 
-            padding: 30px; box-sizing: border-box; color: black;
+            background: white; border: 25px solid black; 
+            display: flex; flex-direction: column; 
+            padding: 20px 40px; box-sizing: border-box; color: black;
+            overflow: hidden; /* Zapobiega wychodzeniu treści */
         }
         #label-render.danger-mode { border-color: #ce1126 !important; }
         
-        .header-row { display: flex; justify-content: flex-start; align-items: center; width: 100%; height: 100px; margin-bottom: 10px; }
-        #logo-preview-label { max-height: 90px; max-width: 400px; object-fit: contain; display: none; }
+        .header-row { display: flex; align-items: center; width: 100%; height: 80px; }
+        #logo-preview-label { max-height: 70px; max-width: 350px; object-fit: contain; display: none; }
         
         #danger-header { 
-            display: none; font-size: 60px; font-weight: 900; color: #ce1126; 
-            border-bottom: 8px solid #ce1126; width: 100%; text-align: center; margin-bottom: 15px;
+            display: none; font-size: 55px; font-weight: 900; color: #ce1126; 
+            border-bottom: 8px solid #ce1126; width: 100%; text-align: center; 
+            margin: 5px 0 15px 0; line-height: 1;
         }
         #label-render.danger-mode #danger-header { display: block; }
 
-        .main-content { flex-grow: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; }
-        #res-code { font-size: 150px; font-weight: 900; line-height: 0.8; margin: 0; letter-spacing: -2px; }
-        #res-name { font-size: 35px; text-transform: uppercase; font-weight: bold; margin-bottom: 20px; }
+        /* Środek etykiety - elastyczny, ale nie rozpycha całości */
+        .main-content { 
+            flex: 1; 
+            display: flex; flex-direction: column; 
+            justify-content: center; align-items: center; 
+            text-align: center; overflow: hidden;
+        }
         
-        .photo-and-desc { display: flex; align-items: center; justify-content: center; gap: 25px; width: 100%; border-top: 5px solid #000; padding-top: 15px; }
+        #res-code { font-size: 140px; font-weight: 900; line-height: 0.9; margin: 0; letter-spacing: -2px; }
+        #res-name { font-size: 32px; text-transform: uppercase; font-weight: bold; margin-bottom: 10px; }
+        
+        .photo-and-desc { 
+            display: flex; align-items: center; justify-content: space-between; 
+            width: 100%; border-top: 5px solid #000; padding-top: 15px; margin-top: 10px;
+            max-height: 280px;
+        }
         #label-render.danger-mode .photo-and-desc { border-top-color: #ce1126; }
         
-        #res-content { font-size: 45px; font-weight: 900; text-transform: uppercase; line-height: 1.0; flex: 1; text-align: left; }
-        #img-waste-label { max-width: 380px; max-height: 280px; border: 4px solid #eee; object-fit: cover; display: none; }
+        #res-content { font-size: 42px; font-weight: 900; text-transform: uppercase; line-height: 1.1; flex: 1; text-align: left; padding-right: 20px; }
+        #img-waste-label { max-width: 350px; max-height: 250px; border: 4px solid #eee; object-fit: cover; display: none; }
 
-        /* STOPKA Z RAMKAMI */
-        .footer-info { width: 100%; margin-top: 20px; display: none; }
-        .footer-info table { width: 100%; }
-        .address-box { border: 3px solid #ce1126; padding: 10px; font-size: 20px; font-weight: bold; min-height: 50px; margin-bottom: 10px; }
-        .address-box.dotted { border: 3px dashed #ce1126; border-top: none; margin-top: -10px; min-height: 40px; }
-        .date-box { font-size: 18px; font-weight: bold; text-align: right; }
+        /* STOPKA - ZAWSZE NA DOLE */
+        .footer-info { 
+            width: 100%; margin-top: auto; padding-top: 10px;
+            display: none; /* Domyślnie ukryte, włączane JS dla danger */
+        }
+        .address-box { border: 3px solid #ce1126; padding: 8px 15px; font-size: 22px; font-weight: 900; margin-bottom: 8px; background: #fff; }
+        .address-box.dotted { border: 3px dashed #ce1126; min-height: 50px; }
+        .date-box { font-size: 18px; font-weight: bold; text-align: right; text-transform: uppercase; }
 
         .btn-gen { background: #28a745; color: white; padding: 15px; font-weight: bold; border-radius: 10px; width: 100%; border: none; font-size: 1.3rem; }
     </style>
@@ -158,7 +174,7 @@
     
     <div class="footer-info" id="label-footer">
         <div class="address-box">LOKALIZACJA: <span id="lbl-place">-</span></div>
-        <div class="address-box dotted">ZMIANA LOKALIZACJI: ................................................................</div>
+        <div class="address-box dotted">ZMIANA MIEJSCA: ................................................................</div>
         <div class="date-box">DATA ROZPOCZĘCIA MAGAZYNOWANIA: <span id="lbl-date">-</span></div>
     </div>
 </div>
@@ -177,7 +193,6 @@
     let currentWaste = null;
     const grid = document.getElementById('quick-grid');
 
-    // Inicjalizacja kafelków
     WASTES.forEach(w => {
         const isDanger = w.code.includes('*');
         const div = document.createElement('div');
@@ -187,14 +202,13 @@
         grid.appendChild(div);
     });
 
-    // Ładowanie zapamiętanego logo przy starcie
     window.onload = () => {
         const savedLogo = localStorage.getItem('global_logo');
         if (savedLogo) {
             const img = document.getElementById('logo-preview-label');
             img.src = savedLogo;
             img.style.display = 'block';
-            document.getElementById('logo-name').innerText = "Logo wczytane z pamięci";
+            document.getElementById('logo-name').innerText = "Logo wczytane";
         }
     };
 
@@ -214,7 +228,6 @@
         document.getElementById('res-code').innerText = waste.code;
         document.getElementById('res-name').innerText = waste.name;
 
-        // Wczytaj zapamiętane dane dla tego kodu
         loadSavedData(waste.code);
 
         const cbDiv = document.getElementById('dynamic-checkboxes');
@@ -237,8 +250,8 @@
                 const img = document.getElementById('logo-preview-label');
                 img.src = e.target.result;
                 img.style.display = 'block';
-                localStorage.setItem('global_logo', e.target.result); // Zapisz logo na stałe
-                document.getElementById('logo-name').innerText = "Zapisano logo";
+                localStorage.setItem('global_logo', e.target.result);
+                document.getElementById('logo-name').innerText = "Logo OK";
             };
             reader.readAsDataURL(file);
         }
@@ -252,7 +265,7 @@
                 const img = document.getElementById('img-waste-label');
                 img.src = e.target.result;
                 img.style.display = 'block';
-                document.getElementById('waste-name').innerText = "Zdjęcie gotowe";
+                document.getElementById('waste-name').innerText = "Foto OK";
             };
             reader.readAsDataURL(file);
         }
@@ -275,7 +288,6 @@
         document.getElementById('lbl-place').innerText = place + (zipFormatted ? ", " + zipFormatted : "");
         document.getElementById('lbl-date').innerText = document.getElementById('dateInput').value || "-";
 
-        // Zapisywanie do LocalStorage
         saveCurrentData();
     }
 
@@ -318,7 +330,12 @@
         btn.innerText = "GENEROWANIE...";
         btn.disabled = true;
         try {
-            const canvas = await html2canvas(document.getElementById('label-render'), { scale: 2, useCORS: true });
+            const canvas = await html2canvas(document.getElementById('label-render'), { 
+                scale: 2, 
+                useCORS: true,
+                windowWidth: 1122,
+                windowHeight: 794
+            });
             const imgData = canvas.toDataURL('image/png');
             const { jsPDF } = window.jspdf;
             const pdf = new jsPDF({ orientation: 'l', unit: 'mm', format: 'a4' });
