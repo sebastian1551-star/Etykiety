@@ -2,147 +2,156 @@
 <html lang="pl">
 <head>
     <meta charset="UTF-8">
-    <title>GENERATOR ETYKIET ENPROM - FINAL PRO</title>
+    <title>GENERATOR ETYKIET ENPROM - PRO EXPERT</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     
     <style>
-        body { background-color: #f0f2f5; font-family: "Century Gothic", AppleGothic, sans-serif; padding-bottom: 50px; }
-        .app-card { max-width: 1000px; margin: 20px auto; background: white; padding: 25px; border-radius: 15px; box-shadow: 0 10px 30px rgba(0,0,0,0.15); }
+        body { background-color: #e9ecef; font-family: "Century Gothic", "Segoe UI", sans-serif; padding-bottom: 50px; }
+        .app-card { max-width: 1100px; margin: 30px auto; background: white; padding: 30px; border-radius: 20px; box-shadow: 0 15px 35px rgba(0,0,0,0.2); }
         
-        /* Górne kafelki wyboru */
-        .quick-select-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 10px; margin-bottom: 25px; }
+        /* Grid kafelków wyboru */
+        .quick-select-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 12px; margin-bottom: 30px; }
         .quick-tile { 
-            background: #fff; border: 2px solid #000; padding: 12px; border-radius: 10px; 
-            text-align: center; cursor: pointer; transition: 0.2s; display: flex; flex-direction: column;
+            background: #fff; border: 2px solid #333; padding: 15px; border-radius: 12px; 
+            text-align: center; cursor: pointer; transition: all 0.2s ease; display: flex; flex-direction: column; justify-content: center;
         }
-        .quick-tile:hover { transform: translateY(-2px); box-shadow: 0 5px 15px rgba(0,0,0,0.1); }
-        .quick-tile b { font-size: 1.2rem; color: #000; }
-        .quick-tile.danger { border-color: #ce1126; }
-        .quick-tile.active { background: #000 !important; color: #fff !important; }
-        .quick-tile.danger.active { background: #ce1126 !important; }
+        .quick-tile:hover { transform: translateY(-3px); box-shadow: 0 5px 15px rgba(0,0,0,0.1); }
+        .quick-tile b { font-size: 1.3rem; color: #000; display: block; }
+        .quick-tile small { color: #555; line-height: 1.2; margin-top: 5px; }
+        .quick-tile.danger { border-color: #ce1126; color: #ce1126; }
+        .quick-tile.active { background: #333 !important; color: #fff !important; border-color: #000; }
+        .quick-tile.danger.active { background: #ce1126 !important; border-color: #ce1126 !important; color: #fff !important; }
 
-        /* Obszar edycji */
-        #content-selection-area { display: none; border-top: 2px solid #eee; margin-top: 20px; padding-top: 20px; }
-        .checkbox-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 8px; margin-bottom: 15px; }
-        .checkbox-item { background: #f8f9fa; border: 1px solid #dee2e6; padding: 8px; border-radius: 8px; cursor: pointer; font-weight: bold; text-align: center; transition: 0.2s; }
-        .checkbox-item.checked { background: #000; color: #fff; }
-        .checkbox-item.danger-checked { background: #ce1126; color: #fff; }
+        /* Formularz */
+        #content-selection-area { display: none; border-top: 3px solid #f0f0f0; margin-top: 25px; padding-top: 25px; animation: fadeIn 0.5s; }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
 
-        .upload-row { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 15px; }
-        .photo-box { background: #f8f9fa; border: 1px dashed #adb5bd; padding: 10px; border-radius: 8px; text-align: center; }
+        .section-title { font-size: 0.9rem; font-weight: 800; text-transform: uppercase; color: #444; margin-bottom: 15px; display: flex; align-items: center; }
+        .section-title span { background: #000; color: #fff; padding: 2px 8px; border-radius: 4px; margin-right: 10px; }
+
+        .checkbox-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 10px; margin-bottom: 15px; }
+        .checkbox-item { 
+            background: #f8f9fa; border: 1px solid #ddd; padding: 10px; border-radius: 10px; 
+            cursor: pointer; font-weight: bold; text-align: center; transition: 0.2s; font-size: 0.85rem;
+        }
+        .checkbox-item:hover { background: #e2e6ea; }
+        .checkbox-item.checked { background: #000; color: #fff; border-color: #000; }
+        .checkbox-item.danger-checked { background: #ce1126; color: #fff; border-color: #ce1126; }
+
+        .upload-row { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
+        .photo-box { background: #fff; border: 2px dashed #ccc; padding: 15px; border-radius: 12px; text-align: center; }
         
-        /* Pola dodatkowe dla niebezpiecznych */
-        #extra-fields { display: none; padding: 15px; border-radius: 12px; background: #fff5f5; border: 1px solid #feb2b2; margin-top: 15px; }
-        .zip-container { display: flex; align-items: center; gap: 3px; }
-        .zip-tile { width: 30px; height: 35px; text-align: center; font-weight: bold; border: 1px solid #ccc; border-radius: 4px; }
+        /* Pola adresu */
+        #extra-fields { display: none; padding: 20px; border-radius: 15px; background: #fff5f5; border: 1px solid #ffdada; margin-top: 20px; }
+        .zip-container { display: flex; align-items: center; gap: 4px; }
+        .zip-tile { width: 38px; height: 42px; text-align: center; font-weight: bold; border: 2px solid #ddd; border-radius: 6px; font-size: 1.2rem; }
+        .zip-tile:focus { border-color: #ce1126; outline: none; }
 
-        /* --- RENDERER PDF (Ukryty przed widokiem, ale dostępny dla skryptu) --- */
+        /* RENDERER (UKRYTY PODGLĄD PDF) */
         #label-render {
-            width: 1122px; height: 794px; 
-            position: fixed; left: -2000px; top: 0;
+            width: 1122px; height: 794px; position: absolute; left: -9999px; 
             background: white; border: 25px solid black; 
             display: flex; flex-direction: column; 
-            padding: 20px 50px; box-sizing: border-box; color: black;
-            z-index: -1000;
+            padding: 40px 60px; box-sizing: border-box; color: black; overflow: hidden;
         }
         #label-render.danger-mode { border-color: #ce1126 !important; }
         
-        .header-row { width: 100%; height: 80px; display: flex; align-items: center; }
-        #logo-preview-label { max-height: 70px; max-width: 400px; object-fit: contain; }
+        .header-row { width: 100%; height: 80px; display: flex; align-items: center; margin-bottom: 10px; }
+        #logo-preview-label { max-height: 80px; max-width: 450px; object-fit: contain; }
         
         #danger-header { 
-            display: none; font-size: 60px; font-weight: 900; color: #ce1126; 
-            border-bottom: 10px solid #ce1126; width: 100%; text-align: center; 
-            margin: 10px 0 20px 0; line-height: 1.1;
+            display: none; font-size: 70px; font-weight: 900; color: #ce1126; 
+            border-bottom: 12px solid #ce1126; width: 100%; text-align: center; 
+            margin: 0 0 25px 0; padding-bottom: 10px; line-height: 1;
         }
         #label-render.danger-mode #danger-header { display: block; }
 
-        .main-content { 
-            flex: 1; display: flex; flex-direction: column; 
-            justify-content: flex-start; align-items: center; text-align: center;
-        }
+        .main-content { flex: 1; display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center; }
+        #res-code { font-size: 180px; font-weight: 900; line-height: 0.85; margin: 0; letter-spacing: -5px; }
+        #res-name { font-size: 45px; text-transform: uppercase; font-weight: bold; margin-bottom: 30px; }
         
-        #res-code { font-size: 155px; font-weight: 900; line-height: 1; margin: 10px 0 0 0; letter-spacing: -2px; }
-        #res-name { font-size: 38px; text-transform: uppercase; font-weight: bold; margin-bottom: 25px; }
-        
-        .photo-and-desc { 
-            display: flex; align-items: center; justify-content: space-between; 
-            width: 100%; border-top: 8px solid #000; padding-top: 30px;
-        }
+        .photo-and-desc { display: flex; align-items: center; justify-content: space-between; width: 100%; border-top: 8px solid #000; padding-top: 30px; }
         #label-render.danger-mode .photo-and-desc { border-top-color: #ce1126; }
         
-        #res-content { font-size: 48px; font-weight: 900; text-transform: uppercase; line-height: 1.1; flex: 1; text-align: left; }
-        .img-container { width: 400px; height: 280px; display: flex; justify-content: center; align-items: center; border: 2px solid #eee; margin-left: 30px; overflow: hidden; }
-        #img-waste-label { max-width: 100%; max-height: 100%; object-fit: cover; display: none; }
+        #res-content { font-size: 60px; font-weight: 900; text-transform: uppercase; line-height: 1.1; flex: 1; text-align: center; padding: 0 20px; }
+        .img-container { width: 400px; height: 280px; display: flex; justify-content: center; align-items: center; border: 2px solid #eee; }
+        #label-render.danger-mode .img-container { display: none !important; } 
+        #img-waste-label { max-width: 100%; max-height: 100%; object-fit: contain; }
 
-        .footer-info { width: 100%; margin-top: auto; padding-bottom: 10px; display: none; }
-        .address-box { border: 5px solid #ce1126; padding: 12px 20px; font-size: 26px; font-weight: 900; margin-bottom: 10px; text-transform: uppercase; }
-        .address-box.dotted { border: 5px dashed #ce1126; min-height: 65px; }
-        .date-box { font-size: 20px; font-weight: bold; text-align: right; }
+        .footer-info { width: 100%; margin-top: auto; display: none; }
+        .address-box { border: 6px solid #ce1126; padding: 15px 25px; font-size: 30px; font-weight: 900; margin-bottom: 12px; background: #fff; }
+        .address-box.dotted { border: 6px dashed #ce1126; min-height: 80px; border-top: none; margin-top: -15px; }
+        .date-box { font-size: 22px; font-weight: bold; text-align: right; }
 
-        .btn-gen { background: #28a745; color: white; padding: 15px; font-weight: bold; border-radius: 10px; width: 100%; border: none; font-size: 1.4rem; transition: 0.3s; }
-        .btn-gen:hover { background: #218838; }
-        .btn-gen:disabled { background: #ccc; cursor: not-allowed; }
+        .btn-gen { background: #28a745; color: white; padding: 18px; font-weight: 800; border-radius: 12px; width: 100%; border: none; font-size: 1.5rem; transition: 0.3s; cursor: pointer; }
+        .btn-gen:hover { background: #218838; transform: scale(1.02); }
     </style>
 </head>
 <body>
 
 <div class="app-card">
-    <h3 class="text-center mb-4"><b>GENERATOR ETYKIET ENPROM</b></h3>
-    
+    <div class="text-center mb-4">
+        <h2 style="font-weight: 900; letter-spacing: -1px;">GENERATOR ETYKIET ODPADÓW</h2>
+        <span class="badge badge-dark">System Zgodny z BDO / ENPROM 2026</span>
+    </div>
+
+    <div class="section-title"><span>1</span> WYBIERZ RODZAJ ODPADU</div>
     <div class="quick-select-grid" id="quick-grid"></div>
 
     <div id="content-selection-area">
         <div class="row">
             <div class="col-md-6">
-                <p class="small mb-1"><b>1. ELEMENTY ZAWARTOŚCI (kliknij by wybrać):</b></p>
+                <div class="section-title"><span>2</span> USZCZEGÓŁOWIENIE ZAWARTOŚCI</div>
                 <div id="dynamic-checkboxes" class="checkbox-grid"></div>
-                <input type="text" id="contentInput" class="form-control mb-3" placeholder="Dodaj inny opis ręcznie..." onkeyup="sync()">
-            </div>
-            <div class="col-md-6">
-                <p class="small mb-1"><b>2. PLIKI (Logo i Foto):</b></p>
-                <div class="upload-row">
-                    <div class="photo-box">
-                        <input type="file" accept="image/*" id="logo-input" onchange="previewLogo(event)" style="display: none;">
-                        <button class="btn btn-outline-primary btn-sm btn-block" onclick="document.getElementById('logo-input').click()">🖼️ ZMIEŃ LOGO</button>
-                    </div>
-                    <div class="photo-box">
-                        <input type="file" accept="image/*" id="waste-input" onchange="previewWaste(event)" style="display: none;">
-                        <button class="btn btn-outline-dark btn-sm btn-block" onclick="document.getElementById('waste-input').click()">📸 DODAJ FOTO</button>
+                <input type="text" id="contentInput" class="form-control form-control-lg" placeholder="Wpisz własny opis..." onkeyup="sync()">
+                
+                <div class="mt-4">
+                    <div class="section-title"><span>3</span> ZDJĘCIE / LOGO</div>
+                    <div class="upload-row">
+                        <div class="photo-box">
+                            <input type="file" accept="image/*" id="logo-input" onchange="previewLogo(event)" style="display: none;">
+                            <button class="btn btn-outline-primary btn-sm btn-block" onclick="document.getElementById('logo-input').click()">🖼️ ZMIEŃ LOGO FIRMY</button>
+                        </div>
+                        <div class="photo-box" id="waste-upload-box">
+                            <input type="file" accept="image/*" id="waste-input" onchange="previewWaste(event)" style="display: none;">
+                            <button class="btn btn-outline-dark btn-sm btn-block" onclick="document.getElementById('waste-input').click()">📸 DODAJ FOTO ODPADU</button>
+                        </div>
                     </div>
                 </div>
-                <p class="text-muted small">Logo zapisuje się na stałe w przeglądarce.</p>
             </div>
-        </div>
 
-        <div id="extra-fields">
-            <div class="row">
-                <div class="col-md-5">
-                    <label class="small mb-0">MIEJSCE POWSTANIA (np. Gmina/Budowa):</label>
-                    <input type="text" id="placeInput" class="form-control" onkeyup="sync()">
-                </div>
-                <div class="col-md-4">
-                    <label class="small mb-0">KOD POCZTOWY:</label>
-                    <div class="zip-container">
-                        <input type="text" class="zip-tile" maxlength="1" id="z1" inputmode="numeric">
-                        <input type="text" class="zip-tile" maxlength="1" id="z2" inputmode="numeric">
-                        <span style="font-weight: bold">-</span>
-                        <input type="text" class="zip-tile" maxlength="1" id="z3" inputmode="numeric">
-                        <input type="text" class="zip-tile" maxlength="1" id="z4" inputmode="numeric">
-                        <input type="text" class="zip-tile" maxlength="1" id="z5" inputmode="numeric">
+            <div class="col-md-6">
+                <div id="extra-fields">
+                    <div class="section-title"><span>4</span> DANE LOKALIZACYJNE</div>
+                    
+                    <label class="small mb-1">KOD POCZTOWY:</label>
+                    <div class="zip-container mb-3">
+                        <input type="text" class="zip-tile" maxlength="1" id="z1">
+                        <input type="text" class="zip-tile" maxlength="1" id="z2">
+                        <span style="font-size: 20px; font-weight: bold;">-</span>
+                        <input type="text" class="zip-tile" maxlength="1" id="z3">
+                        <input type="text" class="zip-tile" maxlength="1" id="z4">
+                        <input type="text" class="zip-tile" maxlength="1" id="z5">
                     </div>
-                </div>
-                <div class="col-md-3">
-                    <label class="small mb-0">DATA ROZPOCZĘCIA:</label>
+
+                    <label class="small mb-1">MIEJSCOWOŚĆ (AUTOUZUPEŁNIANIE):</label>
+                    <input type="text" id="cityInput" list="city-list" class="form-control mb-3" placeholder="Zacznij pisać miasto..." oninput="sync()">
+                    <datalist id="city-list">
+                        </datalist>
+
+                    <label class="small mb-1">ADRES / ULICA / NR BUDOWY:</label>
+                    <input type="text" id="streetInput" class="form-control mb-3" placeholder="Np. ul. Przemysłowa 10 lub km linii" onkeyup="sync()">
+
+                    <label class="small mb-1">DATA ROZPOCZĘCIA MAGAZYNOWANIA:</label>
                     <input type="date" id="dateInput" class="form-control" onchange="sync()">
                 </div>
             </div>
         </div>
-        
-        <button type="button" id="btnGen" onclick="generatePDF()" class="btn-gen mt-4">POBIERZ ETYKIETĘ PDF (A4)</button>
+
+        <button type="button" id="btnGen" onclick="generatePDF()" class="btn-gen mt-5">POBIERZ GOTOWĄ ETYKIETĘ (A4 PDF)</button>
     </div>
 </div>
 
@@ -155,74 +164,86 @@
         <div id="res-name">NAZWA ODPADU</div>
         <div class="photo-and-desc">
             <div id="res-content">---</div>
-            <div class="img-container">
-                <img id="img-waste-label" src="">
-            </div>
+            <div class="img-container"><img id="img-waste-label" src=""></div>
         </div>
     </div>
-
+    
     <div class="footer-info" id="label-footer">
-        <div class="address-box">LOKALIZACJA: <span id="lbl-place">-</span></div>
-        <div class="address-box dotted">ZMIANA MIEJSCA MAGAZYNOWANIA: ...........................................</div>
+        <div class="address-box">MIEJSCE: <span id="lbl-place">-</span></div>
+        <div class="address-box dotted">ZMIANA MIEJSCA: .....................................................................</div>
         <div class="date-box">DATA ROZPOCZĘCIA MAGAZYNOWANIA: <span id="lbl-date">-</span></div>
     </div>
 </div>
 
 <script>
+    // BAZA DANYCH ODPADÓW
     const WASTES = [
-        { code: "15 01 10*", name: "Opakowania zawierające pozostałości substancji niebezpiecznych", desc: "CHEMIA / FARBY", items: ["FARBY", "LAKIERY", "SPRAYE", "CHEMIA", "ROZPUSZCZALNIKI"] },
-        { code: "15 02 02*", name: "Sorbenty, materiały filtracyjne, tkaniny do wycierania", desc: "SZMATY OLEJOWE", items: ["SZMATY", "CZYŚCIWO", "FILTRY", "SORBENT", "TROCINY"] },
-        { code: "16 02 13*", name: "Zużyte urządzenia zawierające niebezpieczne elementy", desc: "ELEKTRONIKA / BATERIE", items: ["KOMPUTERY", "BATERIE", "KABLE", "AKUMULATORY"] },
-        { code: "15 01 01", name: "Opakowania z papieru i tektury", desc: "PAPIER I TEKTURA", items: ["KARTONY", "PAPIER", "TEKTURA"] },
-        { code: "15 01 02", name: "Opakowania z tworzyw sztucznych", desc: "PLASTIK / FOLIA", items: ["FOLIA", "STRAPING", "BAŃKI", "BUTELKI"] },
-        { code: "17 04 05", name: "Żelazo i stal", desc: "ZŁOM STALOWY", items: ["ZŁOM", "RURY", "PROFILE", "DRUTY"] },
-        { code: "17 02 01", name: "Drewno", desc: "ODPADY DREWNIANE", items: ["PALETY", "DESKI", "SKRZYNIE"] }
+        { code: "15 01 10*", name: "Opakowania niebezpieczne", desc: "CHEMIA, FARBY, LAKIERY", items: ["FARBY", "LAKIERY", "SPRAYE", "ROZPUSZCZALNIK", "SMARY"] },
+        { code: "15 02 02*", name: "Sorbenty i czyściwo", desc: "SZMATY OLEJOWE, FILTRY", items: ["SZMATY", "CZYŚCIWO", "FILTRY OLEJU", "SORBENT", "MATY"] },
+        { code: "16 02 13*", name: "Zużyta elektronika", desc: "ELEKTROŚMIECI, KABLE", items: ["KOMPUTERY", "MONITORY", "KABLE", "ZASILACZE", "RTV"] },
+        { code: "17 04 05", name: "Żelazo i stal", desc: "ZŁOM, KONSTRUKCJE", items: ["ZŁOM", "RURY", "PROFILE", "PRĘTY"] },
+        { code: "17 02 01", name: "Drewno", desc: "PALETY, DESKI", items: ["PALETY EURO", "DESKI", "SKRZYNIE"] },
+        { code: "15 01 01", name: "Papier i Tektura", desc: "KARTONY, WORKI", items: ["KARTONY", "PAPIER", "TEKTURA"] },
+        { code: "15 01 02", name: "Plastik / Folia", desc: "FOLIA I OPAKOWANIA", items: ["FOLIA STRETCH", "BAŃKI", "STRAPING"] }
     ];
 
+    // BAZA KODÓW POCZTOWYCH DLA AUTOUZUPEŁNIANIA
+    const ZIP_DATABASE = {
+        "05400": "Otwock", "05480": "Karczew", "05410": "Józefów", "00001": "Warszawa", "05075": "Wesoła", "05080": "Izabelin", "30001": "Kraków"
+    };
+
+    const CITIES = ["Otwock", "Warszawa", "Kraków", "Wrocław", "Gdańsk", "Poznań", "Łódź", "Katowice", "Szczecin", "Lublin", "Karczew", "Józefów", "Góra Kalwaria"];
+
     let currentWaste = null;
-    const grid = document.getElementById('quick-grid');
 
-    // Inicjalizacja kafelków
-    WASTES.forEach(w => {
-        const div = document.createElement('div');
-        div.className = `quick-tile ${w.code.includes('*') ? 'danger' : ''}`;
-        div.innerHTML = `<b>${w.code}</b><span>${w.desc}</span><small style="font-size:0.7rem; opacity:0.7">${w.name}</small>`;
-        div.onclick = () => selectWaste(w, div);
-        grid.appendChild(div);
-    });
-
-    // Wczytanie zapisanego logo
+    // INICJALIZACJA
     window.onload = () => {
+        const grid = document.getElementById('quick-grid');
+        WASTES.forEach(w => {
+            const div = document.createElement('div');
+            const isD = w.code.includes('*');
+            div.className = `quick-tile ${isD ? 'danger' : ''}`;
+            div.innerHTML = `<b>${w.code}</b><small>${w.name}</small><span style="font-size:0.7rem; color:#888;">${w.desc}</span>`;
+            div.onclick = () => selectWaste(w, div);
+            grid.appendChild(div);
+        });
+
+        // Ładowanie miast do datalisty
+        const datalist = document.getElementById('city-list');
+        CITIES.forEach(city => {
+            const opt = document.createElement('option');
+            opt.value = city;
+            datalist.appendChild(opt);
+        });
+
+        // Wstępne logo z pamięci
         const savedLogo = localStorage.getItem('global_logo');
-        if (savedLogo) { document.getElementById('logo-preview-label').src = savedLogo; }
-        // Ustawienie dzisiejszej daty jako domyślnej
-        document.getElementById('dateInput').valueAsDate = new Date();
+        if (savedLogo) document.getElementById('logo-preview-label').src = savedLogo;
     };
 
     function selectWaste(waste, el) {
         currentWaste = waste;
         document.querySelectorAll('.quick-tile').forEach(t => t.classList.remove('active'));
         el.classList.add('active');
-        
         document.getElementById('content-selection-area').style.display = 'block';
-        const isD = waste.code.includes('*');
         
-        // Zarządzanie widocznością sekcji
+        const isD = waste.code.includes('*');
         document.getElementById('extra-fields').style.display = isD ? 'block' : 'none';
         document.getElementById('label-footer').style.display = isD ? 'block' : 'none';
+        document.getElementById('waste-upload-box').style.opacity = isD ? '0.2' : '1';
         
         const label = document.getElementById('label-render');
         isD ? label.classList.add('danger-mode') : label.classList.remove('danger-mode');
         
         document.getElementById('res-code').innerText = waste.code;
-        document.getElementById('res-name').innerText = waste.name;
+        document.getElementById('res-name').innerText = waste.name.toUpperCase();
+        
+        // Generuj przyciski wyboru zawartości
+        document.getElementById('dynamic-checkboxes').innerHTML = waste.items.map(i => 
+            `<div class="checkbox-item" onclick="toggleOption(this, ${isD})">${i}</div>`
+        ).join('');
         
         loadSavedData(waste.code);
-        
-        // Generowanie checkboxów
-        const checkContainer = document.getElementById('dynamic-checkboxes');
-        checkContainer.innerHTML = waste.items.map(i => `<div class="checkbox-item" onclick="toggleOption(this, ${isD})">${i}</div>`).join('');
-        
         sync();
     }
 
@@ -231,114 +252,116 @@
         sync();
     }
 
+    // PODGLĄD OBRAZKÓW
     function previewLogo(event) {
         const reader = new FileReader();
-        reader.onload = e => {
-            document.getElementById('logo-preview-label').src = e.target.result;
+        reader.onload = e => { 
+            document.getElementById('logo-preview-label').src = e.target.result; 
             localStorage.setItem('global_logo', e.target.result);
         };
         reader.readAsDataURL(event.target.files[0]);
     }
 
     function previewWaste(event) {
+        if(currentWaste?.code.includes('*')) return;
         const reader = new FileReader();
-        reader.onload = e => {
+        reader.onload = e => { 
             const img = document.getElementById('img-waste-label');
-            img.src = e.target.result;
+            img.src = e.target.result; 
             img.style.display = 'block';
         };
         reader.readAsDataURL(event.target.files[0]);
     }
 
+    // GŁÓWNA SYNCHRONIZACJA DANYCH
     function sync() {
         if (!currentWaste) return;
         const isD = currentWaste.code.includes('*');
-        
-        // Zbierz wybrane opcje
+
+        // 1. Tekst zawartości
         const sel = Array.from(document.querySelectorAll(isD ? '.danger-checked' : '.checked')).map(i => i.innerText);
         const man = document.getElementById('contentInput').value.toUpperCase();
-        let finalStr = sel.join(' / ');
-        if (man) finalStr += (finalStr ? ' / ' : '') + man;
-        
-        document.getElementById('res-content').innerText = finalStr || "---";
-        
-        // Adres i data
+        let finalContent = sel.join(' / ');
+        if (man) finalContent += (finalContent ? ' / ' : '') + man;
+        document.getElementById('res-content').innerText = finalContent || "---";
+
+        // 2. Adres i Kod Pocztowy
         const zip = [1,2,3,4,5].map(i => document.getElementById('z'+i).value).join('');
-        const zipF = zip.length >= 2 ? zip.substring(0,2)+'-'+zip.substring(2) : zip;
-        const place = document.getElementById('placeInput').value;
         
-        document.getElementById('lbl-place').innerText = place + (zipF ? ", " + zipF : "");
+        // Autouzupełnianie miasta jeśli kod pasuje do bazy
+        if(zip.length === 5 && ZIP_DATABASE[zip]) {
+            const cityInput = document.getElementById('cityInput');
+            if(!cityInput.value) cityInput.value = ZIP_DATABASE[zip];
+        }
+
+        const formattedZip = zip.length >= 2 ? zip.substring(0,2)+'-'+zip.substring(2) : zip;
+        const city = document.getElementById('cityInput').value;
+        const street = document.getElementById('streetInput').value;
+        
+        let fullAddr = [];
+        if(formattedZip) fullAddr.push(formattedZip);
+        if(city) fullAddr.push(city);
+        if(street) fullAddr.push(street);
+        
+        document.getElementById('lbl-place').innerText = fullAddr.join(', ') || "-";
         document.getElementById('lbl-date').innerText = document.getElementById('dateInput').value || "-";
-        
+
         saveCurrentData();
     }
 
+    // OBSŁUGA KLAWISZY KODU POCZTOWEGO
+    document.querySelectorAll('.zip-tile').forEach((t, i, arr) => {
+        t.oninput = () => { if(t.value && i < 4) arr[i+1].focus(); sync(); };
+        t.onkeydown = (e) => { if(e.key === "Backspace" && !t.value && i > 0) arr[i-1].focus(); };
+    });
+
+    // ZAPIS/ODCZYT LOCALSTORAGE
     function saveCurrentData() {
         if (!currentWaste) return;
-        const data = {
-            p: document.getElementById('placeInput').value,
-            z: [1,2,3,4,5].map(i => document.getElementById('z'+i).value)
+        const d = {
+            city: document.getElementById('cityInput').value,
+            street: document.getElementById('streetInput').value,
+            zip: [1,2,3,4,5].map(i => document.getElementById('z'+i).value),
+            date: document.getElementById('dateInput').value
         };
-        localStorage.setItem('waste_data_' + currentWaste.code, JSON.stringify(data));
+        localStorage.setItem('waste_data_' + currentWaste.code, JSON.stringify(d));
     }
 
     function loadSavedData(code) {
-        const saved = localStorage.getItem('waste_data_' + code);
-        if (saved) {
-            const d = JSON.parse(saved);
-            document.getElementById('placeInput').value = d.p || "";
-            d.z.forEach((v, i) => document.getElementById('z'+(i+1)).value = v || "");
+        const s = localStorage.getItem('waste_data_' + code);
+        if (s) {
+            const d = JSON.parse(s);
+            document.getElementById('cityInput').value = d.city || "";
+            document.getElementById('streetInput').value = d.street || "";
+            document.getElementById('dateInput').value = d.date || "";
+            if(d.zip) d.zip.forEach((v, i) => document.getElementById('z'+(i+1)).value = v || "");
         }
     }
 
-    // Automatyczne przeskakiwanie pól kodu pocztowego
-    document.querySelectorAll('.zip-tile').forEach((t, i, arr) => {
-        t.oninput = (e) => {
-            if(t.value && i < 4) arr[i+1].focus();
-            sync();
-        };
-        t.onkeydown = (e) => {
-            if(e.key === "Backspace" && !t.value && i > 0) arr[i-1].focus();
-        };
-    });
-
+    // GENEROWANIE PDF
     async function generatePDF() {
         const btn = document.getElementById('btnGen');
-        const label = document.getElementById('label-render');
-        
+        const originalText = btn.innerText;
+        btn.innerText = "⏳ GENEROWANIE PDF...";
         btn.disabled = true;
-        btn.innerText = "GENEROWANIE PLIKU...";
-
-        // Chwilowe przeniesienie renderera do widoczności dla html2canvas
-        label.style.left = "0";
 
         try {
-            const canvas = await html2canvas(label, { 
-                scale: 3, // Wysoka jakość
+            const canvas = await html2canvas(document.getElementById('label-render'), { 
+                scale: 2, 
                 useCORS: true,
                 logging: false,
-                backgroundColor: "#ffffff"
+                width: 1122,
+                height: 794
             });
-            
-            const imgData = canvas.toDataURL('image/png');
-            const { jsPDF } = window.jspdf;
-            const pdf = new jsPDF({
-                orientation: 'l',
-                unit: 'mm',
-                format: 'a4'
-            });
-
-            pdf.addImage(imgData, 'PNG', 0, 0, 297, 210);
-            const safeFileName = currentWaste.code.replace(/[* ]/g, '_');
-            pdf.save(`Etykieta_ENPROM_${safeFileName}.pdf`);
-
-        } catch (err) {
+            const pdf = new jspdf.jsPDF({ orientation: 'l', unit: 'mm', format: 'a4' });
+            pdf.addImage(canvas.toDataURL('image/png'), 'PNG', 0, 0, 297, 210);
+            pdf.save(`Etykieta_${currentWaste.code.replace(/\s|\*/g,'')}_${new Date().toISOString().slice(0,10)}.pdf`);
+        } catch (err) { 
             console.error(err);
-            alert("Błąd generowania PDF. Spróbuj na innej przeglądarce.");
+            alert("Wystąpił błąd podczas tworzenia pliku PDF."); 
         } finally {
-            label.style.left = "-2000px";
+            btn.innerText = originalText;
             btn.disabled = false;
-            btn.innerText = "POBIERZ ETYKIETĘ PDF (A4)";
         }
     }
 </script>
