@@ -25,6 +25,10 @@
         .quick-tile.active { background: #333 !important; color: #fff !important; border-color: #000; }
         .quick-tile.danger.active { background: #ce1126 !important; border-color: #ce1126 !important; color: #fff !important; }
 
+        /* Kafelek katalogu - specjalny styl */
+        .quick-tile.catalog-tile { border-color: #007bff; color: #007bff; background: #f0f7ff; }
+        .quick-tile.catalog-tile b { color: #007bff; }
+
         #selected-waste-info { display: none; background: #f8f9fa; border: 2px solid #000; padding: 15px; border-radius: 12px; margin-bottom: 20px; justify-content: space-between; align-items: center; }
         #selected-waste-info.danger-info { border-color: #ce1126; background: #fff5f5; }
 
@@ -101,7 +105,13 @@
 
     <div class="section-title" id="step1-title"><span>1</span> WYBIERZ RODZAJ ODPADU</div>
     
-    <div class="quick-select-grid" id="quick-grid"></div>
+    <div class="quick-select-grid" id="quick-grid">
+        <div class="quick-tile catalog-tile" onclick="window.open('https://sebastian1551-star.github.io/Wybierak/', '_blank')">
+            <b>📚 KATALOG</b>
+            <small>Pełny spis kodów i wyszukiwarka</small>
+            <div class="sub-desc">LINK ZEWNĘTRZNY</div>
+        </div>
+    </div>
 
     <div id="selected-waste-info">
         <div>
@@ -137,7 +147,7 @@
                 <div id="extra-fields">
                     <div class="section-title"><span>4</span> DANE LOKALIZACYJNE</div>
                     
-                    <label class="small mb-1">MIEJSCOWOŚĆ (WYBIERZ Z LISTY DLA AUTO-FILL):</label>
+                    <label class="small mb-1">MIEJSCOWOŚĆ (WYBIERZ DLA AUTO-FILL):</label>
                     <input type="text" id="cityInput" list="city-list" class="form-control mb-3" placeholder="Zacznij pisać..." oninput="handleCityAutoFill(this.value)">
                     <datalist id="city-list"></datalist>
 
@@ -234,7 +244,6 @@
         currentWaste = waste;
         const isD = waste.code.includes('*');
 
-        // Zwijanie interfejsu
         document.getElementById('quick-grid').style.display = 'none';
         document.getElementById('step1-title').style.display = 'none';
         
@@ -244,7 +253,6 @@
         document.getElementById('info-code').innerText = waste.code;
         document.getElementById('info-name').innerText = waste.name;
 
-        // Pokazywanie edycji
         document.getElementById('content-selection-area').style.display = 'block';
         document.getElementById('extra-fields').style.display = isD ? 'block' : 'none';
         document.getElementById('label-footer').style.display = isD ? 'block' : 'none';
