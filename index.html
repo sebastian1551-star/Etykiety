@@ -48,6 +48,7 @@
         .zip-tile { width: 38px; height: 42px; text-align: center; font-weight: bold; border: 2px solid #ddd; border-radius: 6px; font-size: 1.2rem; }
         .zip-tile:focus { border-color: #ce1126; outline: none; }
 
+        /* RENDERER - ZMNIEJSZONE CZCIONKI */
         #label-render {
             width: 1122px; height: 794px; position: absolute; left: -9999px; 
             background: white; border: 25px solid black; 
@@ -56,32 +57,32 @@
         }
         #label-render.danger-mode { border-color: #ce1126 !important; }
         
-        .header-row { width: 100%; height: 80px; display: flex; align-items: center; margin-bottom: 10px; }
-        #logo-preview-label { max-height: 80px; max-width: 450px; object-fit: contain; }
+        .header-row { width: 100%; height: 60px; display: flex; align-items: center; margin-bottom: 10px; }
+        #logo-preview-label { max-height: 60px; max-width: 350px; object-fit: contain; }
         
         #danger-header { 
-            display: none; font-size: 70px; font-weight: 900; color: #ce1126; 
-            border-bottom: 12px solid #ce1126; width: 100%; text-align: center; 
-            margin: 0 0 25px 0; padding-bottom: 10px; line-height: 1;
+            display: none; font-size: 55px; font-weight: 900; color: #ce1126; 
+            border-bottom: 10px solid #ce1126; width: 100%; text-align: center; 
+            margin: 0 0 20px 0; padding-bottom: 8px; line-height: 1;
         }
         #label-render.danger-mode #danger-header { display: block; }
 
         .main-content { flex: 1; display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center; }
-        #res-code { font-size: 150px; font-weight: 900; line-height: 0.85; margin: 0; letter-spacing: -5px; }
-        #res-name { font-size: 38px; text-transform: uppercase; font-weight: bold; margin-bottom: 30px; line-height: 1.2; padding: 0 20px; }
+        #res-code { font-size: 130px; font-weight: 900; line-height: 0.85; margin: 0; letter-spacing: -3px; }
+        #res-name { font-size: 30px; text-transform: uppercase; font-weight: bold; margin-bottom: 25px; line-height: 1.2; padding: 0 20px; }
         
-        .photo-and-desc { display: flex; align-items: center; justify-content: space-between; width: 100%; border-top: 8px solid #000; padding-top: 30px; }
+        .photo-and-desc { display: flex; align-items: center; justify-content: space-between; width: 100%; border-top: 6px solid #000; padding-top: 25px; }
         #label-render.danger-mode .photo-and-desc { border-top-color: #ce1126; }
         
-        #res-content { font-size: 55px; font-weight: 900; text-transform: uppercase; line-height: 1.1; flex: 1; text-align: center; padding: 0 20px; word-break: break-word; }
-        .img-container { width: 400px; height: 280px; display: flex; justify-content: center; align-items: center; border: 2px solid #eee; }
+        #res-content { font-size: 45px; font-weight: 900; text-transform: uppercase; line-height: 1.1; flex: 1; text-align: center; padding: 0 20px; word-break: break-word; }
+        .img-container { width: 350px; height: 240px; display: flex; justify-content: center; align-items: center; border: 2px solid #eee; }
         #label-render.danger-mode .img-container { display: none !important; } 
         #img-waste-label { max-width: 100%; max-height: 100%; object-fit: contain; }
 
         .footer-info { width: 100%; margin-top: auto; display: none; }
-        .address-box { border: 6px solid #ce1126; padding: 15px 25px; font-size: 28px; font-weight: 900; margin-bottom: 12px; background: #fff; }
-        .address-box.dotted { border: 6px dashed #ce1126; min-height: 80px; border-top: none; margin-top: -15px; }
-        .date-box { font-size: 22px; font-weight: bold; text-align: right; }
+        .address-box { border: 5px solid #ce1126; padding: 12px 20px; font-size: 24px; font-weight: 900; margin-bottom: 10px; background: #fff; }
+        .address-box.dotted { border: 5px dashed #ce1126; min-height: 70px; border-top: none; margin-top: -15px; }
+        .date-box { font-size: 18px; font-weight: bold; text-align: right; }
 
         .btn-gen { background: #28a745; color: white; padding: 18px; font-weight: 800; border-radius: 12px; width: 100%; border: none; font-size: 1.5rem; transition: 0.3s; cursor: pointer; }
         .btn-gen:hover { background: #218838; transform: scale(1.02); }
@@ -172,7 +173,6 @@
 </div>
 
 <script>
-    // 1. OFICJALNA BAZA ODPADÓW
     const WASTES = [
         { code: "15 01 10*", name: "Opakowania zawierające pozostałości substancji niebezpiecznych lub nimi zanieczyszczone", desc: "CHEMIA, FARBY, SMARY", items: ["POJEMNIKI PO FARBACH", "OPAKOWANIA PO SMARACH", "AEROZOLE", "ROZPUSZCZALNIKI"] },
         { code: "15 02 02*", name: "Sorbenty, materiały filtracyjne, tkaniny do wycierania i ubrania ochronne zanieczyszczone substancjami niebezpiecznymi", desc: "CZYŚCIWO, FILTRY", items: ["SZMATY OLEJOWE", "SORBENT", "FILTRY OLEJU", "RĘKAWICE"] },
@@ -186,7 +186,6 @@
         { code: "15 01 02", name: "Opakowania z tworzyw sztucznych", desc: "FOLIA, PLASTIK", items: ["FOLIA STRETCH", "FOLIA LDPE", "BAŃKI PLASTIKOWE"] }
     ];
 
-    // 2. BAZA LOKALIZACJI ENPROM (AUTO-UZUPEŁNIANIE)
     const LOCATIONS = [
         { name: "Lutkówka Druga", zip: "96320", street: "Grójecka 24" },
         { name: "Otwock", zip: "05400", street: "ul. Przemysłowa 10" },
@@ -198,7 +197,6 @@
     let currentWaste = null;
 
     window.onload = () => {
-        // Generuj kafelki odpadów
         const grid = document.getElementById('quick-grid');
         WASTES.forEach(w => {
             const div = document.createElement('div');
@@ -209,7 +207,6 @@
             grid.appendChild(div);
         });
 
-        // Załaduj listę miast do datalisty
         const datalist = document.getElementById('city-list');
         LOCATIONS.forEach(loc => {
             const opt = document.createElement('option');
@@ -217,7 +214,6 @@
             datalist.appendChild(opt);
         });
 
-        // Wczytaj logo z pamięci
         const savedLogo = localStorage.getItem('global_logo');
         if (savedLogo) document.getElementById('logo-preview-label').src = savedLogo;
     };
@@ -225,12 +221,10 @@
     function handleCityAutoFill(cityName) {
         const found = LOCATIONS.find(l => l.name.toLowerCase() === cityName.toLowerCase());
         if (found) {
-            // Rozbij kod na kratki
             const digits = found.zip.split('');
             digits.forEach((d, i) => {
                 document.getElementById('z' + (i+1)).value = d;
             });
-            // Uzupełnij ulicę
             document.getElementById('streetInput').value = found.street;
         }
         sync();
