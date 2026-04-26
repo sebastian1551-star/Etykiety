@@ -51,18 +51,18 @@
         }
         #label-render.danger-mode { border-color: #ce1126 !important; }
         
-        .header-row { display: flex; justify-content: space-between; align-items: center; width: 100%; height: 100px; margin-bottom: 10px; }
-        #logo-preview-label { max-height: 90px; max-width: 300px; object-fit: contain; display: none; }
+        .header-row { display: flex; justify-content: flex-start; align-items: center; width: 100%; height: 100px; margin-bottom: 10px; }
+        #logo-preview-label { max-height: 90px; max-width: 400px; object-fit: contain; display: none; }
         
         #danger-header { 
-            display: none; font-size: 50px; font-weight: 900; color: #ce1126; 
+            display: none; font-size: 60px; font-weight: 900; color: #ce1126; 
             border-bottom: 8px solid #ce1126; width: 100%; text-align: center; margin-bottom: 15px;
         }
         #label-render.danger-mode #danger-header { display: block; }
 
         .main-content { flex-grow: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; }
-        #res-code { font-size: 140px; font-weight: 900; line-height: 0.8; margin: 0; letter-spacing: -2px; }
-        #res-name { font-size: 30px; text-transform: uppercase; font-weight: bold; margin-bottom: 15px; }
+        #res-code { font-size: 150px; font-weight: 900; line-height: 0.8; margin: 0; letter-spacing: -2px; }
+        #res-name { font-size: 35px; text-transform: uppercase; font-weight: bold; margin-bottom: 20px; }
         
         .photo-and-desc { display: flex; align-items: center; justify-content: center; gap: 25px; width: 100%; border-top: 5px solid #000; padding-top: 15px; }
         #label-render.danger-mode .photo-and-desc { border-top-color: #ce1126; }
@@ -70,10 +70,12 @@
         #res-content { font-size: 45px; font-weight: 900; text-transform: uppercase; line-height: 1.0; flex: 1; text-align: left; }
         #img-waste-label { max-width: 380px; max-height: 280px; border: 4px solid #eee; object-fit: cover; display: none; }
 
-        /* KOMPAKTOWA STOPKA */
-        .footer-info { width: 100%; margin-top: 15px; display: none; border-top: 2px solid #ce1126; padding-top: 10px; }
-        .footer-info table { width: 100%; font-size: 16px; font-weight: bold; }
-        .footer-info td { padding: 5px 10px; }
+        /* STOPKA Z RAMKAMI */
+        .footer-info { width: 100%; margin-top: 20px; display: none; }
+        .footer-info table { width: 100%; }
+        .address-box { border: 3px solid #ce1126; padding: 10px; font-size: 20px; font-weight: bold; min-height: 50px; margin-bottom: 10px; }
+        .address-box.dotted { border: 3px dashed #ce1126; border-top: none; margin-top: -10px; min-height: 40px; }
+        .date-box { font-size: 18px; font-weight: bold; text-align: right; }
 
         .btn-gen { background: #28a745; color: white; padding: 15px; font-weight: bold; border-radius: 10px; width: 100%; border: none; font-size: 1.3rem; }
     </style>
@@ -140,7 +142,6 @@
 <div id="label-render">
     <div class="header-row">
         <img id="logo-preview-label" src="">
-        <div style="font-size: 18px; font-weight: bold; text-align: right;">KARTA OZNACZENIA ODPADU</div>
     </div>
     
     <div id="danger-header">ODPAD NIEBEZPIECZNY</div>
@@ -156,12 +157,9 @@
     </div>
     
     <div class="footer-info" id="label-footer">
-        <table border="0">
-            <tr>
-                <td style="width: 70%">LOKALIZACJA: <span id="lbl-place">-</span></td>
-                <td style="width: 30%; text-align: right;">DATA: <span id="lbl-date">-</span></td>
-            </tr>
-        </table>
+        <div class="address-box">LOKALIZACJA: <span id="lbl-place">-</span></div>
+        <div class="address-box dotted">ZMIANA LOKALIZACJI: ................................................................</div>
+        <div class="date-box">DATA ROZPOCZĘCIA MAGAZYNOWANIA: <span id="lbl-date">-</span></div>
     </div>
 </div>
 
@@ -179,6 +177,7 @@
     let currentWaste = null;
     const grid = document.getElementById('quick-grid');
 
+    // Inicjalizacja kafelków
     WASTES.forEach(w => {
         const isDanger = w.code.includes('*');
         const div = document.createElement('div');
@@ -187,6 +186,17 @@
         div.onclick = () => selectWaste(w, div);
         grid.appendChild(div);
     });
+
+    // Ładowanie zapamiętanego logo przy starcie
+    window.onload = () => {
+        const savedLogo = localStorage.getItem('global_logo');
+        if (savedLogo) {
+            const img = document.getElementById('logo-preview-label');
+            img.src = savedLogo;
+            img.style.display = 'block';
+            document.getElementById('logo-name').innerText = "Logo wczytane z pamięci";
+        }
+    };
 
     function selectWaste(waste, el) {
         currentWaste = waste;
@@ -204,6 +214,9 @@
         document.getElementById('res-code').innerText = waste.code;
         document.getElementById('res-name').innerText = waste.name;
 
+        // Wczytaj zapamiętane dane dla tego kodu
+        loadSavedData(waste.code);
+
         const cbDiv = document.getElementById('dynamic-checkboxes');
         cbDiv.innerHTML = waste.items.map(item => `
             <div class="checkbox-item" onclick="toggleOption(this, ${isDanger})">${item}</div>
@@ -219,12 +232,13 @@
     function previewLogo(event) {
         const file = event.target.files[0];
         if (file) {
-            document.getElementById('logo-name').innerText = "OK: " + file.name;
             const reader = new FileReader();
             reader.onload = e => {
                 const img = document.getElementById('logo-preview-label');
                 img.src = e.target.result;
                 img.style.display = 'block';
+                localStorage.setItem('global_logo', e.target.result); // Zapisz logo na stałe
+                document.getElementById('logo-name').innerText = "Zapisano logo";
             };
             reader.readAsDataURL(file);
         }
@@ -233,12 +247,12 @@
     function previewWaste(event) {
         const file = event.target.files[0];
         if (file) {
-            document.getElementById('waste-name').innerText = "OK: " + file.name;
             const reader = new FileReader();
             reader.onload = e => {
                 const img = document.getElementById('img-waste-label');
                 img.src = e.target.result;
                 img.style.display = 'block';
+                document.getElementById('waste-name').innerText = "Zdjęcie gotowe";
             };
             reader.readAsDataURL(file);
         }
@@ -257,8 +271,41 @@
         const place = document.getElementById('placeInput').value;
         const zip = [1,2,3,4,5].map(i => document.getElementById('z'+i).value).join('');
         const zipFormatted = zip.length >= 2 ? zip.substring(0,2)+'-'+zip.substring(2) : zip;
+        
         document.getElementById('lbl-place').innerText = place + (zipFormatted ? ", " + zipFormatted : "");
         document.getElementById('lbl-date').innerText = document.getElementById('dateInput').value || "-";
+
+        // Zapisywanie do LocalStorage
+        saveCurrentData();
+    }
+
+    function saveCurrentData() {
+        if (!currentWaste) return;
+        const data = {
+            place: document.getElementById('placeInput').value,
+            z1: document.getElementById('z1').value,
+            z2: document.getElementById('z2').value,
+            z3: document.getElementById('z3').value,
+            z4: document.getElementById('z4').value,
+            z5: document.getElementById('z5').value,
+        };
+        localStorage.setItem('waste_data_' + currentWaste.code, JSON.stringify(data));
+    }
+
+    function loadSavedData(code) {
+        const saved = localStorage.getItem('waste_data_' + code);
+        if (saved) {
+            const data = JSON.parse(saved);
+            document.getElementById('placeInput').value = data.place || "";
+            document.getElementById('z1').value = data.z1 || "";
+            document.getElementById('z2').value = data.z2 || "";
+            document.getElementById('z3').value = data.z3 || "";
+            document.getElementById('z4').value = data.z4 || "";
+            document.getElementById('z5').value = data.z5 || "";
+        } else {
+            document.getElementById('placeInput').value = "";
+            [1,2,3,4,5].forEach(i => document.getElementById('z'+i).value = "");
+        }
     }
 
     document.querySelectorAll('.zip-tile').forEach((t, i, arr) => {
