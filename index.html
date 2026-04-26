@@ -2,349 +2,281 @@
 <html lang="pl">
 <head>
     <meta charset="UTF-8">
-    <title>KATALOG ODPADÓW ENPROM</title>
+    <title>GENERATOR ETYKIET ENPROM</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     
     <style>
-        body { background-color: #f0f2f5; font-family: "Century Gothic", AppleGothic, sans-serif; }
-        .app-card { max-width: 850px; margin: 30px auto; background: white; padding: 30px; border-radius: 15px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); }
+        body { background-color: #f0f2f5; font-family: "Century Gothic", sans-serif; padding-bottom: 50px; }
+        .app-card { max-width: 900px; margin: 20px auto; background: white; padding: 25px; border-radius: 15px; box-shadow: 0 10px 30px rgba(0,0,0,0.15); }
         
-        /* KAFELKI ULUBIONE */
-        .quick-select-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 10px; margin-bottom: 20px; }
+        /* KAFLE DLA LAIKA */
+        .quick-select-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 15px; margin-bottom: 30px; }
         .quick-tile { 
-            background: #fff; border: 2px solid #000; padding: 10px; border-radius: 10px; 
-            text-align: center; cursor: pointer; transition: 0.2s; display: flex; flex-direction: column; height: 100%;
+            background: #fff; border: 3px solid #000; padding: 20px; border-radius: 12px; 
+            text-align: center; cursor: pointer; transition: 0.2s; display: flex; flex-direction: column; min-height: 150px;
         }
-        .quick-tile b { font-size: 1.1rem; }
-        .quick-tile small { font-size: 0.75rem; color: #555; margin-top: 4px; line-height: 1.2; }
-        .quick-tile.danger { border-color: #ce1126; color: #ce1126; }
+        .quick-tile:hover { transform: translateY(-3px); box-shadow: 0 5px 15px rgba(0,0,0,0.1); }
+        .quick-tile b { font-size: 1.5rem; display: block; color: #000; }
+        .quick-tile span { font-size: 1.1rem; font-weight: 900; text-transform: uppercase; color: #333; margin: 5px 0; }
+        .quick-tile small { font-size: 0.85rem; color: #666; border-top: 1px solid #eee; padding-top: 5px; }
+        
+        /* KOLORY OSTRZEGAWCZE */
+        .quick-tile.danger { border-color: #ce1126; }
+        .quick-tile.danger span { color: #ce1126; }
         .quick-tile.active { background: #000 !important; color: #fff !important; }
-        .quick-tile.danger.active { background: #ce1126 !important; color: #fff !important; }
-        .quick-tile.active small { color: #eee; }
+        .quick-tile.active span, .quick-tile.active small { color: #fff !important; }
+        .quick-tile.danger.active { background: #ce1126 !important; border-color: #ce1126 !important; }
 
-        /* CHECKBOXY ZAWARTOŚCI */
-        #checkbox-section { display: none; background: #f8f9fa; border: 1px solid #dee2e6; padding: 15px; border-radius: 12px; margin-bottom: 20px; }
-        .checkbox-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 10px; margin-top: 10px; }
-        .checkbox-item { background: white; border: 1px solid #ccc; padding: 8px; border-radius: 8px; cursor: pointer; display: flex; align-items: center; gap: 8px; font-weight: bold; font-size: 14px; transition: 0.2s; }
-        .checkbox-item:hover { border-color: #000; background: #f0f0f0; }
-        .checkbox-item input { transform: scale(1.2); pointer-events: none; }
+        /* SEKCJA ZAWARTOŚCI */
+        #content-selection-area { display: none; border-top: 2px solid #eee; margin-top: 20px; padding-top: 20px; }
+        .checkbox-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 10px; margin-bottom: 20px; }
+        .checkbox-item { background: #f8f9fa; border: 2px solid #dee2e6; padding: 15px; border-radius: 10px; cursor: pointer; font-weight: bold; text-align: center; }
+        .checkbox-item.checked { background: #000; color: #fff; border-color: #000; }
+        .checkbox-item.danger-checked { background: #ce1126; color: #fff; border-color: #ce1126; }
 
-        #extra-fields { 
-            display: none; margin-top: 20px; padding: 25px; border-radius: 15px; 
-            background: #f8f9fa; border: 1px solid #dee2e6; transition: 0.3s;
-        }
-        #extra-fields.danger-ui { background: #fff5f5; border-color: #feb2b2; }
+        /* ZDJĘCIE */
+        .photo-upload-box { background: #e9ecef; border: 2px dashed #adb5bd; padding: 20px; text-align: center; border-radius: 10px; margin-bottom: 20px; }
 
-        .zip-container { display: flex; align-items: center; gap: 8px; }
-        .zip-tile { width: 42px; height: 50px; text-align: center; font-size: 22px; font-weight: bold; border: 2px solid #dee2e6; border-radius: 8px; }
+        /* POLA DLA NIEBEZPIECZNYCH */
+        #extra-fields { display: none; padding: 20px; border-radius: 12px; background: #fff5f5; border: 2px solid #feb2b2; margin-bottom: 20px; }
+        .zip-container { display: flex; align-items: center; gap: 5px; }
+        .zip-tile { width: 45px; height: 45px; text-align: center; font-size: 20px; font-weight: bold; border: 2px solid #ccc; border-radius: 5px; }
 
-        /* --- STYLIZACJA ETYKIETY (RENDEROWANIE PDF) --- */
+        /* --- RENDERER ETYKIETY (A4 POZIOMO) --- */
         #label-render {
             width: 1122px; height: 794px; position: absolute; left: -9999px; 
             background: white; border: 25px solid black; display: flex; flex-direction: column; 
-            padding: 30px; box-sizing: border-box; color: black; justify-content: center; align-items: center;
+            padding: 40px; box-sizing: border-box; color: black;
         }
-        #label-render.danger-mode { border-color: #ce1126 !important; justify-content: space-between; }
+        #label-render.danger-mode { border-color: #ce1126 !important; }
+        .logo-row { display: flex; justify-content: space-between; align-items: center; width: 100%; margin-bottom: 20px; }
+        .logo-text { font-size: 45px; font-weight: 900; letter-spacing: 5px; }
         
-        .logo-box { height: 80px; width: 100%; display: flex; justify-content: center; margin-bottom: 10px; }
-        #img-logo-label { height: 100%; object-fit: contain; }
-        .logo-placeholder { font-size: 40px; font-weight: 900; letter-spacing: 5px; }
-
         #danger-header { 
-            display: none; font-size: 55px; font-weight: 900; color: #ce1126; 
-            margin-bottom: 10px; text-transform: uppercase; border-bottom: 10px solid #ce1126; width: 100%; text-align: center;
+            display: none; font-size: 60px; font-weight: 900; color: #ce1126; 
+            border-bottom: 12px solid #ce1126; width: 100%; text-align: center; margin-bottom: 20px;
         }
         #label-render.danger-mode #danger-header { display: block; }
 
-        .content-box { text-align: center; width: 100%; flex-grow: 1; display: flex; flex-direction: column; justify-content: center; }
-        #res-hint { font-size: 26px; font-weight: bold; color: #ce1126; text-transform: uppercase; margin-bottom: 5px; height: 32px; }
-        #res-code { font-size: 180px; font-weight: bold; line-height: 0.8; margin: 10px 0; }
-        #res-name { font-size: 28px; text-transform: uppercase; margin-bottom: 15px; width: 90%; margin-left: auto; margin-right: auto; font-weight: 600; min-height: 70px; }
-        .divider { width: 90%; height: 6px; background: black; margin: 15px auto; }
-        #label-render.danger-mode .divider { background: #ce1126; }
-        #res-content { font-size: 48px; font-weight: bold; text-transform: uppercase; margin-bottom: 10px; word-wrap: break-word; line-height: 1.1; }
+        .main-content { flex-grow: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; }
+        #res-code { font-size: 160px; font-weight: 900; line-height: 0.8; margin: 0; }
+        #res-name { font-size: 36px; text-transform: uppercase; font-weight: bold; margin-bottom: 20px; max-width: 900px; }
         
-        .info-footer { width: 100%; border-top: 4px solid #000; padding-top: 15px; margin-top: 10px; }
-        #label-render.danger-mode .info-footer { border-color: #ce1126; }
+        .photo-and-desc { display: flex; align-items: center; justify-content: center; gap: 40px; width: 100%; border-top: 6px solid #000; padding-top: 20px; }
+        #label-render.danger-mode .photo-and-desc { border-top-color: #ce1126; }
         
-        .footer-table { width: 100%; border-collapse: collapse; }
-        .footer-table td { width: 50%; vertical-align: top; padding: 5px; }
-        .data-row { border: 1px solid #000; padding: 8px; margin-bottom: 5px; display: flex; align-items: center; font-size: 18px; min-height: 42px; font-weight: bold; }
-        #label-render.danger-mode .data-row { border-color: #ce1126; }
-        .dots-fill { border-bottom: 2px dotted #000; flex-grow: 1; margin-left: 10px; height: 16px; }
+        #res-content { font-size: 55px; font-weight: 900; text-transform: uppercase; line-height: 1.1; flex: 1; }
+        #img-preview-label { max-width: 350px; max-height: 250px; border: 5px solid #eee; object-fit: cover; display: none; }
 
-        .btn-main { background: #000; color: white; padding: 18px; font-weight: bold; border-radius: 12px; width: 100%; border: none; font-size: 1.3rem; cursor: pointer; transition: 0.3s; }
-        .btn-main:hover { background: #333; transform: translateY(-2px); }
-        .results-list { position: absolute; z-index: 1000; width: 100%; max-height: 250px; overflow-y: auto; background: white; border: 1px solid #ccc; }
+        .footer-info { width: 100%; margin-top: 30px; display: none; }
+        .footer-info table { width: 100%; font-size: 22px; font-weight: bold; border-collapse: collapse; }
+        .footer-info td { border: 2px solid #ce1126; padding: 15px; width: 50%; }
+
+        .btn-gen { background: #28a745; color: white; padding: 20px; font-weight: bold; border-radius: 12px; width: 100%; border: none; font-size: 1.6rem; transition: 0.3s; }
+        .btn-gen:hover { background: #218838; transform: scale(1.01); }
     </style>
 </head>
 <body>
 
 <div class="app-card">
-    <h3 class="text-center mb-4"><b>GENERATOR ETYKIET ODPADÓW</b></h3>
-
-    <div class="form-group">
-        <label><b>0. LOGO FIRMY</b></label>
-        <input type="file" class="form-control-file" accept="image/*" onchange="loadLogo(event)">
-    </div>
-
-    <label><b>1. ULUBIONE KODY:</b></label>
+    <h2 class="text-center mb-4"><b>SYSTEM ETYKIETOWANIA ODPADÓW</b></h2>
+    
+    <p class="text-center text-muted">KROK 1: Wybierz rodzaj odpadu</p>
     <div class="quick-select-grid" id="quick-grid"></div>
 
-    <div class="form-group position-relative">
-        <label><b>2. SZUKAJ KODU ODPADU</b></label>
-        <input type="text" id="searchInput" class="form-control form-control-lg" placeholder="Wpisz kod lub nazwę..." onkeyup="filterWaste()">
-        <div id="results" class="results-list"></div>
-    </div>
-
-    <div id="checkbox-section">
-        <label><b>3. ZAZNACZ ZAWARTOŚĆ:</b></label>
-        <div id="dynamic-checkboxes" class="checkbox-grid"></div>
-    </div>
-
-    <div class="form-group">
-        <label><b>LUB WPISZ ZAWARTOŚĆ RĘCZNIE</b></label>
-        <input type="text" id="contentInput" class="form-control" placeholder="Np. uszkodzone opakowania..." onkeyup="sync()">
-    </div>
-
-    <div id="extra-fields">
+    <div id="content-selection-area">
         <div class="row">
-            <div class="col-md-7 form-group">
-                <label>ADRES ROZPOCZĘCIA SKŁADOWANIA</label>
-                <input type="text" id="placeInput" class="form-control" placeholder="Ulica, numer, miejscowość" onkeyup="sync()">
+            <div class="col-md-6">
+                <p><b>KROK 2: Co jest w środku?</b></p>
+                <div id="dynamic-checkboxes" class="checkbox-grid"></div>
+                <input type="text" id="contentInput" class="form-control form-control-lg mb-3" placeholder="Inny opis / uwagi..." onkeyup="sync()">
             </div>
-            <div class="col-md-5 form-group">
-                <label>KOD POCZTOWY</label>
-                <div class="zip-container">
-                    <input type="text" class="zip-tile" maxlength="1" id="zip1">
-                    <input type="text" class="zip-tile" maxlength="1" id="zip2">
-                    <span style="font-size: 20px; font-weight: bold;">-</span>
-                    <input type="text" class="zip-tile" maxlength="1" id="zip3">
-                    <input type="text" class="zip-tile" maxlength="1" id="zip4">
-                    <input type="text" class="zip-tile" maxlength="1" id="zip5">
+            <div class="col-md-6">
+                <p><b>KROK 3: Zdjęcie (Opcjonalnie)</b></p>
+                <div class="photo-upload-box">
+                    <input type="file" accept="image/*" id="file-input" onchange="previewImage(event)" style="display: none;">
+                    <button class="btn btn-secondary btn-block" onclick="document.getElementById('file-input').click()">📸 WYBIERZ ZDJĘCIE / ZRÓB FOTKĘ</button>
+                    <div id="file-name" class="small mt-2">Brak zdjęcia</div>
                 </div>
             </div>
-            <div class="col-md-12 form-group">
-                <label>DATA ROZPOCZĘCIA SKŁADOWANIA</label>
-                <input type="date" id="dateInput" class="form-control" onchange="sync()">
+        </div>
+
+        <div id="extra-fields">
+            <h5 class="text-danger"><b>DANE DLA ODPADU NIEBEZPIECZNEGO:</b></h5>
+            <div class="row">
+                <div class="col-md-7">
+                    <label>MIEJSCE SKŁADOWANIA:</label>
+                    <input type="text" id="placeInput" class="form-control" placeholder="Np. Magazyn nr 1, ul. Przemysłowa" onkeyup="sync()">
+                </div>
+                <div class="col-md-5">
+                    <label>KOD POCZTOWY:</label>
+                    <div class="zip-container">
+                        <input type="text" class="zip-tile" maxlength="1" id="z1">
+                        <input type="text" class="zip-tile" maxlength="1" id="z2">
+                        <span>-</span>
+                        <input type="text" class="zip-tile" maxlength="1" id="z3">
+                        <input type="text" class="zip-tile" maxlength="1" id="z4">
+                        <input type="text" class="zip-tile" maxlength="1" id="z5">
+                    </div>
+                </div>
+                <div class="col-md-6 mt-3">
+                    <label>DATA ROZPOCZĘCIA:</label>
+                    <input type="date" id="dateInput" class="form-control" onchange="sync()">
+                </div>
             </div>
         </div>
-    </div>
 
-    <input type="hidden" id="selCode">
-    <button type="button" id="btnGen" onclick="generatePDF()" class="btn-main mt-4">POBIERZ ETYKIETĘ (PDF)</button>
+        <button type="button" id="btnGen" onclick="generatePDF()" class="btn-gen mt-3">POBIERZ ETYKIETĘ (A4 - PDF)</button>
+    </div>
 </div>
 
 <div id="label-render">
-    <div class="logo-box" id="logo-container">
-        <img id="img-logo-label" src="" style="display:none;">
-        <div class="logo-placeholder">ENPROM</div>
+    <div class="logo-row">
+        <div class="logo-text">ENPROM</div>
+        <div style="font-size: 20px; font-weight: bold;">ETYKIETA ODPADU</div>
     </div>
-    <div id="danger-header">ODPADY NIEBEZPIECZNE</div>
     
-    <div class="content-box">
-        <div id="res-hint"></div>
+    <div id="danger-header">ODPAD NIEBEZPIECZNY</div>
+    
+    <div class="main-content">
         <div id="res-code">00 00 00</div>
-        <div id="res-name">WYBIERZ KOD ODPADU</div>
-        <div class="divider"></div>
-        <div id="res-content"></div>
+        <div id="res-name">NAZWA ODPADU</div>
+        
+        <div class="photo-and-desc">
+            <div id="res-content">---</div>
+            <img id="img-preview-label" src="">
+        </div>
     </div>
     
-    <div class="info-footer" id="label-footer" style="display: none;">
-        <table class="footer-table">
+    <div class="footer-info" id="label-footer">
+        <table>
             <tr>
-                <td>
-                    <div style="font-weight:bold; margin-bottom:5px;">ADRESY SKŁADOWANIA:</div>
-                    <div class="data-row">I: <span id="lbl-place-full" style="margin-left:8px;">-</span></div>
-                    <div class="data-row">II: <span class="dots-fill"></span></div>
-                    <div class="data-row">III: <span class="dots-fill"></span></div>
-                </td>
-                <td>
-                    <div style="font-weight:bold; margin-bottom:5px;">DATY PRZEJĘCIA:</div>
-                    <div class="data-row">START: <span id="lbl-date" style="margin-left:8px;">-</span></div>
-                    <div class="data-row">II: <span class="dots-fill" style="max-width:140px;"></span></div>
-                    <div class="data-row">III: <span class="dots-fill" style="max-width:140px;"></span></div>
-                </td>
+                <td>MIEJSCE: <span id="lbl-place">-</span></td>
+                <td>DATA: <span id="lbl-date">-</span></td>
             </tr>
         </table>
     </div>
 </div>
 
 <script>
+    // BAZA DANYCH - TUTAJ ŁATWO DODASZ NOWE KODY
     const WASTES = [
-        {code: "15 01 10*", name: "Opakowania zawierające pozostałości substancji niebezpiecznych", hint: "FARBY, LAKIERY, SPRAYE, OPAKOWANIA PO CHEMII", items: ["FARBY", "LAKIERY", "SPRAYE", "CHEMIA", "SMARY", "PIANKI"]},
-        {code: "15 01 01", name: "Opakowania z papieru i tektury", hint: "KARTONY, PAPIER, WORKI PAPIEROWE", items: ["KARTONY", "PAPIER", "WORKI"]},
-        {code: "15 01 02", name: "Opakowania z tworzyw sztucznych", hint: "FOLIE, BUTELKI, BAŃKI PLASTIKOWE (CZYSTE)", items: ["FOLIA", "BUTELKI", "BAŃKI"]},
-        {code: "16 02 13*", name: "Zużyte urządzenia zawierające niebezpieczne elementy", hint: "ELEKTRONIKA, ZUŻYTE URZĄDZENIA ELEKTRYCZNE", items: ["ELEKTRONIKA", "AGD", "NARZĘDZIA"]},
-        {code: "17 04 05", name: "Żelazo i stal", hint: "KONSTRUKCJE STALOWE, ZŁOM ŻELAZNY", items: ["ZŁOM", "RURY", "DRUTY"]},
-        {code: "17 09 04", name: "Zmieszane odpady budowlane", hint: "GRUZ, REGIPSY, IZOLACJE", items: ["GRUZ", "REGIPSY", "WEŁNA"]},
-        {code: "20 03 01", name: "Niesegregowane (zmieszane) odpady komunalne", hint: "ODPADY BYTOWE, ŚMIECI ZMIESZANE", items: ["BYTOWE", "ZMIESZANE"]},
-        {code: "15 02 02*", name: "Sorbenty, materiały filtracyjne i ubrania ochronne", hint: "Zużyte czyściwo (zaolejone)", items: ["ZAOLEJONE SZMATY", "CZYŚCIWO", "FILTRY OLEJU", "SORBENTY"]}
+        { code: "15 01 10*", name: "Opakowania niebezpieczne", desc: "FARBY, LAKIERY, CHEMIA", items: ["FARBY", "LAKIERY", "SPRAYE", "CHEMIA", "PIANKI"] },
+        { code: "15 02 02*", name: "Sorbenty i czyściwo", desc: "SZMATY OLEJOWE, FILTRY", items: ["SZMATY", "CZYŚCIWO", "FILTRY", "SORBENT"] },
+        { code: "16 02 13*", name: "Zużyta elektronika", desc: "SPRZĘT RTV/AGD, KABLE", items: ["KOMPUTERY", "ELEKTRONIKA", "BATERIE", "KABLE"] },
+        { code: "15 01 01", name: "Papier i Tektura", desc: "KARTONY I WORKI", items: ["KARTONY", "PAPIER", "TEKTURA"] },
+        { code: "15 01 02", name: "Plastik / Folia", desc: "FOLIA CZYSTA I OPAKOWANIA", items: ["FOLIA", "STRAPING", "BAŃKI"] },
+        { code: "17 04 05", name: "Żelazo i stal", desc: "ZŁOM I KONSTRUKCJE", items: ["ZŁOM", "RURY", "DRUTY", "PROFILE"] },
+        { code: "17 02 01", name: "Drewno", desc: "PALETY, DESKI, SKRZYNIE", items: ["PALETY", "DESKI", "SKRZYNIE"] }
     ];
 
-    // Inicjalizacja kafelków
+    let currentWaste = null;
     const grid = document.getElementById('quick-grid');
+
+    // Generowanie kafli
     WASTES.forEach(w => {
+        const isDanger = w.code.includes('*');
         const div = document.createElement('div');
-        div.className = `quick-tile ${w.code.includes('*') ? 'danger' : ''}`;
-        div.innerHTML = `<b>${w.code}</b><small>${w.name.substring(0, 40)}...</small>`;
-        div.onclick = () => selectItem(w.code, w.name, w.hint, w.items, div);
+        div.className = `quick-tile ${isDanger ? 'danger' : ''}`;
+        div.innerHTML = `<b>${w.code}</b><span>${w.desc}</span><small>${w.name}</small>`;
+        div.onclick = () => selectWaste(w, div);
         grid.appendChild(div);
     });
 
-    // Obsługa logotypu
-    function loadLogo(e) {
-        const reader = new FileReader();
-        const img = document.getElementById('img-logo-label');
-        const placeholder = document.querySelector('.logo-placeholder');
-        reader.onload = function() { 
-            img.src = reader.result; 
-            img.style.display = 'block';
-            placeholder.style.display = 'none';
-        };
-        if(e.target.files[0]) reader.readAsDataURL(e.target.files[0]);
-    }
-
-    // Inteligentny kod pocztowy (auto-focus i backspace)
-    const zipTiles = document.querySelectorAll('.zip-tile');
-    zipTiles.forEach((tile, idx) => {
-        tile.addEventListener('input', (e) => {
-            tile.value = tile.value.replace(/[^0-9]/g, '');
-            if (tile.value && idx < zipTiles.length - 1) zipTiles[idx+1].focus();
-            sync();
-        });
-        tile.addEventListener('keydown', (e) => {
-            if (e.key === "Backspace" && !tile.value && idx > 0) zipTiles[idx-1].focus();
-        });
-    });
-
-    function filterWaste() {
-        const input = document.getElementById('searchInput').value.toLowerCase().replace(/\s+/g, '');
-        const resDiv = document.getElementById('results');
-        if (input.length < 1) { resDiv.innerHTML = ''; return; }
-        
-        const matches = WASTES.filter(i => 
-            i.code.replace(/\s+/g, '').toLowerCase().includes(input) || 
-            i.name.toLowerCase().includes(input)
-        );
-
-        let html = '<div class="list-group shadow">';
-        matches.forEach(item => {
-            const safeItems = JSON.stringify(item.items).replace(/"/g, '&quot;');
-            html += `<button type="button" class="list-group-item list-group-item-action" onclick="selectItem('${item.code}', '${item.name}', '${item.hint}', ${safeItems})">
-                        <b>${item.code}</b> - ${item.name}
-                     </button>`;
-        });
-        resDiv.innerHTML = html + '</div>';
-    }
-
-    function selectItem(code, name, hint, items, element = null) {
-        // Reset wizualny kafelków
+    function selectWaste(waste, el) {
+        currentWaste = waste;
         document.querySelectorAll('.quick-tile').forEach(t => t.classList.remove('active'));
-        if(element) element.classList.add('active');
-
-        document.getElementById('selCode').value = code;
-        document.getElementById('searchInput').value = code;
-        document.getElementById('results').innerHTML = '';
+        el.classList.add('active');
         
-        const isDanger = code.includes('*');
+        document.getElementById('content-selection-area').style.display = 'block';
+        const isDanger = waste.code.includes('*');
+        
+        // Zarządzanie widokiem niebezpiecznych
+        document.getElementById('extra-fields').style.display = isDanger ? 'block' : 'none';
+        document.getElementById('label-footer').style.display = isDanger ? 'block' : 'none';
         const label = document.getElementById('label-render');
-        const uiPanel = document.getElementById('extra-fields');
-        const footer = document.getElementById('label-footer');
+        isDanger ? label.classList.add('danger-mode') : label.classList.remove('danger-mode');
 
-        // Przełączanie trybu Niebezpieczne / Zwykłe
-        if (isDanger) { 
-            label.classList.add('danger-mode'); 
-            uiPanel.style.display = 'block';
-            uiPanel.classList.add('danger-ui');
-            footer.style.display = 'block';
-        } else { 
-            label.classList.remove('danger-mode'); 
-            uiPanel.style.display = 'none';
-            uiPanel.classList.remove('danger-ui');
-            footer.style.display = 'none';
-        }
+        document.getElementById('res-code').innerText = waste.code;
+        document.getElementById('res-name').innerText = waste.name;
 
-        document.getElementById('res-code').innerText = code;
-        document.getElementById('res-name').innerText = name;
-        document.getElementById('res-hint').innerText = hint;
-
-        // Generowanie checkboxów
-        const cbSection = document.getElementById('checkbox-section');
+        // Checkboxy
         const cbDiv = document.getElementById('dynamic-checkboxes');
-        cbSection.style.display = 'block';
-        cbDiv.innerHTML = items.map(item => `
-            <div class="checkbox-item" onclick="toggleCB(this)">
-                <input type="checkbox" value="${item}">
-                <span>${item}</span>
-            </div>
+        cbDiv.innerHTML = waste.items.map(item => `
+            <div class="checkbox-item" onclick="toggleOption(this, ${isDanger})">${item}</div>
         `).join('');
 
         sync();
     }
 
-    function toggleCB(div) {
-        const cb = div.querySelector('input');
-        cb.checked = !cb.checked;
+    function toggleOption(el, isDanger) {
+        el.classList.toggle(isDanger ? 'danger-checked' : 'checked');
         sync();
     }
 
-    function sync() {
-        const checked = Array.from(document.querySelectorAll('#dynamic-checkboxes input:checked')).map(i => i.value);
-        const manual = document.getElementById('contentInput').value.toUpperCase();
-        
-        let finalContent = checked.join(' / ');
-        if (manual) finalContent += (finalContent ? ' / ' : '') + manual;
-
-        // Auto-skalowanie czcionki dla długich opisów
-        const contentDiv = document.getElementById('res-content');
-        if (finalContent.length > 50) contentDiv.style.fontSize = '32px';
-        else if (finalContent.length > 30) contentDiv.style.fontSize = '40px';
-        else contentDiv.style.fontSize = '48px';
-        
-        contentDiv.innerText = finalContent;
-        
-        // Adres i data
-        const place = document.getElementById('placeInput').value;
-        const zip = Array.from(zipTiles).map(t => t.value);
-        const zipStr = (zip[0] && zip[1]) ? `${zip[0]}${zip[1]}-${zip[2]||''}${zip[3]||''}${zip[4]||''}` : "";
-
-        document.getElementById('lbl-place-full').innerText = (place || "_______________") + (zipStr.length > 3 ? ", " + zipStr : "");
-        document.getElementById('lbl-date').innerText = document.getElementById('dateInput').value || "__________";
+    function previewImage(event) {
+        const file = event.target.files[0];
+        if (file) {
+            document.getElementById('file-name').innerText = "Wybrano: " + file.name;
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const img = document.getElementById('img-preview-label');
+                img.src = e.target.result;
+                img.style.display = 'block';
+            }
+            reader.readAsDataURL(file);
+        }
     }
 
-    async function generatePDF() {
-        const code = document.getElementById('selCode').value;
-        if (!code) return alert("Najpierw wybierz kod odpadu!");
+    function sync() {
+        if (!currentWaste) return;
+        const isDanger = currentWaste.code.includes('*');
+        const activeClass = isDanger ? 'danger-checked' : 'checked';
         
-        const btn = document.getElementById('btnGen');
-        btn.innerText = "GENEROWANIE...";
-        btn.disabled = true;
+        const selected = Array.from(document.querySelectorAll('.' + activeClass)).map(i => i.innerText);
+        const manual = document.getElementById('contentInput').value.toUpperCase();
+        
+        let final = selected.join(' / ');
+        if (manual) final += (final ? ' / ' : '') + manual;
+        document.getElementById('res-content').innerText = final || "---";
 
-        // Ukrycie podpowiedzi pomocniczej na czas renderu
-        const hintEl = document.getElementById('res-hint');
-        hintEl.style.visibility = 'hidden'; 
+        // Adres i Data
+        const place = document.getElementById('placeInput').value;
+        const zip = [1,2,3,4,5].map(i => document.getElementById('z'+i).value).join('');
+        const zipFormatted = zip.length >= 2 ? zip.substring(0,2)+'-'+zip.substring(2) : zip;
+        
+        document.getElementById('lbl-place').innerText = place + (zipFormatted ? ", " + zipFormatted : "");
+        document.getElementById('lbl-date').innerText = document.getElementById('dateInput').value || "-";
+    }
+
+    // Auto-skok kursora w kodzie pocztowym
+    document.querySelectorAll('.zip-tile').forEach((t, i, arr) => {
+        t.oninput = () => { if(t.value && i < 4) arr[i+1].focus(); sync(); };
+        t.onkeydown = (e) => { if(e.key === "Backspace" && !t.value && i > 0) arr[i-1].focus(); };
+    });
+
+    async function generatePDF() {
+        const btn = document.getElementById('btnGen');
+        btn.innerText = "GENEROWANIE PDF...";
+        btn.disabled = true;
 
         try {
             const canvas = await html2canvas(document.getElementById('label-render'), { 
-                scale: 3, // Wyższa jakość do druku
-                useCORS: true,
-                logging: false
+                scale: 2, 
+                useCORS: true 
             });
             const imgData = canvas.toDataURL('image/png');
             const { jsPDF } = window.jspdf;
             const pdf = new jsPDF({ orientation: 'l', unit: 'mm', format: 'a4' });
             pdf.addImage(imgData, 'PNG', 0, 0, 297, 210);
-            pdf.save(`Etykieta_${code.replace('*','').replace(/\s/g,'')}.pdf`);
-        } catch (e) { 
-            alert("Błąd generowania pliku."); 
-            console.error(e);
+            pdf.save(`Etykieta_${currentWaste.code.replace('*','')}.pdf`);
+        } catch (err) {
+            alert("Błąd generowania pliku.");
         } finally {
-            hintEl.style.visibility = 'visible';
-            btn.innerText = "POBIERZ ETYKIETĘ (PDF)";
+            btn.innerText = "POBIERZ ETYKIETĘ (A4 - PDF)";
             btn.disabled = false;
         }
     }
