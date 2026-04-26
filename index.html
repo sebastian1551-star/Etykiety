@@ -16,7 +16,7 @@
         .quick-select-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 10px; margin-bottom: 20px; }
         .quick-tile { 
             background: #fff; border: 2px solid #000; padding: 10px; border-radius: 10px; 
-            text-align: center; cursor: pointer; transition: 0.2s; display: flex; flex-direction: column;
+            text-align: center; cursor: pointer; transition: 0.2s; display: flex; flex-direction: column; height: 100%;
         }
         .quick-tile b { font-size: 1.1rem; }
         .quick-tile small { font-size: 0.75rem; color: #555; margin-top: 4px; line-height: 1.2; }
@@ -40,7 +40,7 @@
         .zip-container { display: flex; align-items: center; gap: 8px; }
         .zip-tile { width: 42px; height: 50px; text-align: center; font-size: 22px; font-weight: bold; border: 2px solid #dee2e6; border-radius: 8px; }
 
-        /* --- STYLIZACJA ETYKIETY --- */
+        /* --- STYLIZACJA ETYKIETY (RENDEROWANIE PDF) --- */
         #label-render {
             width: 1122px; height: 794px; position: absolute; left: -9999px; 
             background: white; border: 25px solid black; display: flex; flex-direction: column; 
@@ -63,7 +63,7 @@
         #res-name { font-size: 28px; text-transform: uppercase; margin-bottom: 15px; width: 90%; margin-left: auto; margin-right: auto; font-weight: 600; min-height: 70px; }
         .divider { width: 90%; height: 6px; background: black; margin: 15px auto; }
         #label-render.danger-mode .divider { background: #ce1126; }
-        #res-content { font-size: 48px; font-weight: bold; text-transform: uppercase; margin-bottom: 10px; }
+        #res-content { font-size: 48px; font-weight: bold; text-transform: uppercase; margin-bottom: 10px; word-wrap: break-word; }
         
         .info-footer { width: 100%; border-top: 4px solid #000; padding-top: 15px; margin-top: 10px; }
         #label-render.danger-mode .info-footer { border-color: #ce1126; }
@@ -74,7 +74,8 @@
         #label-render.danger-mode .data-row { border-color: #ce1126; }
         .dots-fill { border-bottom: 2px dotted #000; flex-grow: 1; margin-left: 10px; height: 16px; }
 
-        .btn-main { background: #000; color: white; padding: 18px; font-weight: bold; border-radius: 12px; width: 100%; border: none; font-size: 1.3rem; cursor: pointer; }
+        .btn-main { background: #000; color: white; padding: 18px; font-weight: bold; border-radius: 12px; width: 100%; border: none; font-size: 1.3rem; cursor: pointer; transition: 0.3s; }
+        .btn-main:hover { background: #333; }
         .results-list { position: absolute; z-index: 1000; width: 100%; max-height: 250px; overflow-y: auto; background: white; border: 1px solid #ccc; }
     </style>
 </head>
@@ -93,7 +94,7 @@
 
     <div class="form-group position-relative">
         <label><b>2. SZUKAJ KODU ODPADU</b></label>
-        <input type="text" id="searchInput" class="form-control form-control-lg" placeholder="Wpisz kod (np. 150110)..." onkeyup="filterWaste()">
+        <input type="text" id="searchInput" class="form-control form-control-lg" placeholder="Wpisz kod lub nazwę..." onkeyup="filterWaste()">
         <div id="results" class="results-list"></div>
     </div>
 
@@ -104,7 +105,7 @@
 
     <div class="form-group">
         <label><b>LUB WPISZ ZAWARTOŚĆ RĘCZNIE</b></label>
-        <input type="text" id="contentInput" class="form-control" placeholder="Opis zawartości..." onkeyup="sync()">
+        <input type="text" id="contentInput" class="form-control" placeholder="Dodatkowy opis..." onkeyup="sync()">
     </div>
 
     <div id="extra-fields">
@@ -132,7 +133,7 @@
     </div>
 
     <input type="hidden" id="selCode">
-    <button type="button" id="btnGen" onclick="generatePDF()" class="btn-main mt-4">PDF (pobierz)</button>
+    <button type="button" id="btnGen" onclick="generatePDF()" class="btn-main mt-4">POBIERZ ETYKIETĘ (PDF)</button>
 </div>
 
 <div id="label-render">
@@ -147,7 +148,7 @@
         <div id="res-content"></div>
     </div>
     
-    <div class="info-footer" id="label-footer">
+    <div class="info-footer" id="label-footer" style="display: none;">
         <table class="footer-table">
             <tr>
                 <td>
@@ -175,11 +176,10 @@
         {code: "16 02 13*", name: "Zużyte urządzenia zawierające niebezpieczne elementy", hint: "ELEKTRONIKA, ZUŻYTE URZĄDZENIA ELEKTRYCZNE", items: ["ELEKTRONIKA", "AGD", "NARZĘDZIA"]},
         {code: "17 04 05", name: "Żelazo i stal", hint: "KONSTRUKCJE STALOWE, ZŁOM ŻELAZNY", items: ["ZŁOM", "RURY", "DRUTY"]},
         {code: "17 09 04", name: "Zmieszane odpady budowlane", hint: "GRUZ, REGIPSY, IZOLACJE", items: ["GRUZ", "REGIPSY", "WEŁNA"]},
-        {code: "20 03 01", name: "Niesegregowane (zmieszane) odpady komunalne", hint: "ODPADY BYTOWE, ŚMIECI ZMIESZANE", items: ["BYTOWE", "ZMIESZANE"]}
-        {code: "15 02 02*", name: "Sorbenty, materiały filtracyjne (w tym filtry olejowe nieujęte w innych grupach), tkaniny do wycierania (np. szmaty, ścierki) i ubrania ochronne zanieczyszczone substancjami niebezpiecznymi (np. PCB) ", hint: "Zużyte czyściwo (zaolejone)", items: ["Zaolejone szmaty", "Brudne czyściło (w smarach, po substancjach olejowych"]}
+        {code: "20 03 01", name: "Niesegregowane (zmieszane) odpady komunalne", hint: "ODPADY BYTOWE, ŚMIECI ZMIESZANE", items: ["BYTOWE", "ZMIESZANE"]},
+        {code: "15 02 02*", name: "Sorbenty, materiały filtracyjne i ubrania ochronne", hint: "Zużyte czyściwo (zaolejone)", items: ["ZAOLEJONE SZMATY", "CZYŚCIWO", "FILTRY OLEJU", "SORBENTY"]}
     ];
 
-    // Generowanie kafelków
     const grid = document.getElementById('quick-grid');
     WASTES.forEach(w => {
         const div = document.createElement('div');
@@ -205,10 +205,16 @@
         const input = document.getElementById('searchInput').value.toLowerCase().replace(/\s+/g, '');
         const resDiv = document.getElementById('results');
         if (input.length < 1) { resDiv.innerHTML = ''; return; }
-        const matches = WASTES.filter(i => i.code.replace(/\s+/g, '').toLowerCase().includes(input) || i.name.toLowerCase().includes(input));
+        
+        const matches = WASTES.filter(i => 
+            i.code.replace(/\s+/g, '').toLowerCase().includes(input) || 
+            i.name.toLowerCase().includes(input)
+        );
+
         let html = '<div class="list-group shadow">';
         matches.forEach(item => {
-            html += `<button type="button" class="list-group-item list-group-item-action" onclick="selectItem('${item.code}', '${item.name}', '${item.hint}', ${JSON.stringify(item.items)})">
+            const safeItems = JSON.stringify(item.items).replace(/"/g, '&quot;');
+            html += `<button type="button" class="list-group-item list-group-item-action" onclick="selectItem('${item.code}', '${item.name}', '${item.hint}', ${safeItems})">
                         <b>${item.code}</b> - ${item.name}
                      </button>`;
         });
@@ -244,7 +250,6 @@
         document.getElementById('res-name').innerText = name;
         document.getElementById('res-hint').innerText = hint;
 
-        // Generowanie checkboxów
         const cbSection = document.getElementById('checkbox-section');
         const cbDiv = document.getElementById('dynamic-checkboxes');
         cbSection.style.display = 'block';
@@ -274,25 +279,51 @@
         document.getElementById('res-content').innerText = finalContent;
         
         const place = document.getElementById('placeInput').value;
-        const zip = document.getElementById('zip1').value + document.getElementById('zip2').value + "-" + document.getElementById('zip3').value + document.getElementById('zip4').value + document.getElementById('zip5').value;
+        const z1 = document.getElementById('zip1').value;
+        const z2 = document.getElementById('zip2').value;
+        const z3 = document.getElementById('zip3').value;
+        const z4 = document.getElementById('zip4').value;
+        const z5 = document.getElementById('zip5').value;
+        
+        let zip = (z1 && z2) ? z1+z2 : "";
+        if(z3||z4||z5) zip += "-" + (z3||"") + (z4||"") + (z5||"");
+
         document.getElementById('lbl-place-full').innerText = (place || "_______________") + (zip.length > 2 ? ", " + zip : "");
         document.getElementById('lbl-date').innerText = document.getElementById('dateInput').value || "__________";
     }
 
     async function generatePDF() {
-        if (!document.getElementById('selCode').value) return alert("Wybierz kod!");
+        const code = document.getElementById('selCode').value;
+        if (!code) return alert("Najpierw wybierz kod odpadu!");
+        
+        const btn = document.getElementById('btnGen');
+        btn.innerText = "GENEROWANIE...";
+        btn.disabled = true;
+
         const hintEl = document.getElementById('res-hint');
         hintEl.style.visibility = 'hidden'; 
+
         try {
-            const canvas = await html2canvas(document.getElementById('label-render'), { scale: 2 });
+            const canvas = await html2canvas(document.getElementById('label-render'), { 
+                scale: 2,
+                useCORS: true,
+                logging: false
+            });
             const imgData = canvas.toDataURL('image/png');
             const { jsPDF } = window.jspdf;
             const pdf = new jsPDF({ orientation: 'l', unit: 'mm', format: 'a4' });
             pdf.addImage(imgData, 'PNG', 0, 0, 297, 210);
-            pdf.save(`Etykieta_${document.getElementById('selCode').value.replace('*','')}.pdf`);
-        } catch (e) { alert("Błąd!"); }
-        hintEl.style.visibility = 'visible'; 
+            pdf.save(`Etykieta_${code.replace('*','').replace(/\s/g,'')}.pdf`);
+        } catch (e) { 
+            alert("Błąd generowania pliku. Spróbuj innej przeglądarki."); 
+            console.error(e);
+        } finally {
+            hintEl.style.visibility = 'visible';
+            btn.innerText = "POBIERZ ETYKIETĘ (PDF)";
+            btn.disabled = false;
+        }
     }
 </script>
+
 </body>
 </html>
