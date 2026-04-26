@@ -21,19 +21,20 @@
         .quick-tile b { font-size: 1.1rem; }
         .quick-tile small { font-size: 0.75rem; color: #555; margin-top: 4px; line-height: 1.2; }
         .quick-tile.danger { border-color: #ce1126; color: #ce1126; }
-        .quick-tile.active { background: #000; color: #fff; }
-        .quick-tile.danger.active { background: #ce1126; color: #fff; }
+        .quick-tile.active { background: #000 !important; color: #fff !important; }
+        .quick-tile.danger.active { background: #ce1126 !important; color: #fff !important; }
         .quick-tile.active small { color: #eee; }
 
         /* CHECKBOXY ZAWARTOŚCI */
         #checkbox-section { display: none; background: #f8f9fa; border: 1px solid #dee2e6; padding: 15px; border-radius: 12px; margin-bottom: 20px; }
         .checkbox-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 10px; margin-top: 10px; }
-        .checkbox-item { background: white; border: 1px solid #ccc; padding: 8px; border-radius: 8px; cursor: pointer; display: flex; align-items: center; gap: 8px; font-weight: bold; font-size: 14px; }
-        .checkbox-item input { transform: scale(1.2); }
+        .checkbox-item { background: white; border: 1px solid #ccc; padding: 8px; border-radius: 8px; cursor: pointer; display: flex; align-items: center; gap: 8px; font-weight: bold; font-size: 14px; transition: 0.2s; }
+        .checkbox-item:hover { border-color: #000; background: #f0f0f0; }
+        .checkbox-item input { transform: scale(1.2); pointer-events: none; }
 
         #extra-fields { 
             display: none; margin-top: 20px; padding: 25px; border-radius: 15px; 
-            background: #f8f9fa; border: 1px solid #dee2e6; transition: background 0.3s ease;
+            background: #f8f9fa; border: 1px solid #dee2e6; transition: 0.3s;
         }
         #extra-fields.danger-ui { background: #fff5f5; border-color: #feb2b2; }
 
@@ -50,6 +51,7 @@
         
         .logo-box { height: 80px; width: 100%; display: flex; justify-content: center; margin-bottom: 10px; }
         #img-logo-label { height: 100%; object-fit: contain; }
+        .logo-placeholder { font-size: 40px; font-weight: 900; letter-spacing: 5px; }
 
         #danger-header { 
             display: none; font-size: 55px; font-weight: 900; color: #ce1126; 
@@ -63,7 +65,7 @@
         #res-name { font-size: 28px; text-transform: uppercase; margin-bottom: 15px; width: 90%; margin-left: auto; margin-right: auto; font-weight: 600; min-height: 70px; }
         .divider { width: 90%; height: 6px; background: black; margin: 15px auto; }
         #label-render.danger-mode .divider { background: #ce1126; }
-        #res-content { font-size: 48px; font-weight: bold; text-transform: uppercase; margin-bottom: 10px; word-wrap: break-word; }
+        #res-content { font-size: 48px; font-weight: bold; text-transform: uppercase; margin-bottom: 10px; word-wrap: break-word; line-height: 1.1; }
         
         .info-footer { width: 100%; border-top: 4px solid #000; padding-top: 15px; margin-top: 10px; }
         #label-render.danger-mode .info-footer { border-color: #ce1126; }
@@ -75,14 +77,14 @@
         .dots-fill { border-bottom: 2px dotted #000; flex-grow: 1; margin-left: 10px; height: 16px; }
 
         .btn-main { background: #000; color: white; padding: 18px; font-weight: bold; border-radius: 12px; width: 100%; border: none; font-size: 1.3rem; cursor: pointer; transition: 0.3s; }
-        .btn-main:hover { background: #333; }
+        .btn-main:hover { background: #333; transform: translateY(-2px); }
         .results-list { position: absolute; z-index: 1000; width: 100%; max-height: 250px; overflow-y: auto; background: white; border: 1px solid #ccc; }
     </style>
 </head>
 <body>
 
 <div class="app-card">
-    <h3 class="text-center mb-4"><b>GENERATOR ETYKIET ENPROM</b></h3>
+    <h3 class="text-center mb-4"><b>GENERATOR ETYKIET ODPADÓW</b></h3>
 
     <div class="form-group">
         <label><b>0. LOGO FIRMY</b></label>
@@ -105,7 +107,7 @@
 
     <div class="form-group">
         <label><b>LUB WPISZ ZAWARTOŚĆ RĘCZNIE</b></label>
-        <input type="text" id="contentInput" class="form-control" placeholder="Dodatkowy opis..." onkeyup="sync()">
+        <input type="text" id="contentInput" class="form-control" placeholder="Np. uszkodzone opakowania..." onkeyup="sync()">
     </div>
 
     <div id="extra-fields">
@@ -117,12 +119,12 @@
             <div class="col-md-5 form-group">
                 <label>KOD POCZTOWY</label>
                 <div class="zip-container">
-                    <input type="text" class="zip-tile" maxlength="1" oninput="zipMove(this, 'zip2')" id="zip1">
-                    <input type="text" class="zip-tile" maxlength="1" oninput="zipMove(this, 'zip3')" id="zip2">
+                    <input type="text" class="zip-tile" maxlength="1" id="zip1">
+                    <input type="text" class="zip-tile" maxlength="1" id="zip2">
                     <span style="font-size: 20px; font-weight: bold;">-</span>
-                    <input type="text" class="zip-tile" maxlength="1" oninput="zipMove(this, 'zip4')" id="zip3">
-                    <input type="text" class="zip-tile" maxlength="1" oninput="zipMove(this, 'zip5')" id="zip4">
-                    <input type="text" class="zip-tile" maxlength="1" oninput="sync()" id="zip5">
+                    <input type="text" class="zip-tile" maxlength="1" id="zip3">
+                    <input type="text" class="zip-tile" maxlength="1" id="zip4">
+                    <input type="text" class="zip-tile" maxlength="1" id="zip5">
                 </div>
             </div>
             <div class="col-md-12 form-group">
@@ -137,7 +139,10 @@
 </div>
 
 <div id="label-render">
-    <div class="logo-box"><img id="img-logo-label" src=""></div>
+    <div class="logo-box" id="logo-container">
+        <img id="img-logo-label" src="" style="display:none;">
+        <div class="logo-placeholder">ENPROM</div>
+    </div>
     <div id="danger-header">ODPADY NIEBEZPIECZNE</div>
     
     <div class="content-box">
@@ -180,6 +185,7 @@
         {code: "15 02 02*", name: "Sorbenty, materiały filtracyjne i ubrania ochronne", hint: "Zużyte czyściwo (zaolejone)", items: ["ZAOLEJONE SZMATY", "CZYŚCIWO", "FILTRY OLEJU", "SORBENTY"]}
     ];
 
+    // Inicjalizacja kafelków
     const grid = document.getElementById('quick-grid');
     WASTES.forEach(w => {
         const div = document.createElement('div');
@@ -189,17 +195,31 @@
         grid.appendChild(div);
     });
 
+    // Obsługa logotypu
     function loadLogo(e) {
         const reader = new FileReader();
-        reader.onload = function() { document.getElementById('img-logo-label').src = reader.result; };
-        reader.readAsDataURL(e.target.files[0]);
+        const img = document.getElementById('img-logo-label');
+        const placeholder = document.querySelector('.logo-placeholder');
+        reader.onload = function() { 
+            img.src = reader.result; 
+            img.style.display = 'block';
+            placeholder.style.display = 'none';
+        };
+        if(e.target.files[0]) reader.readAsDataURL(e.target.files[0]);
     }
 
-    function zipMove(current, nextId) {
-        current.value = current.value.replace(/[^0-9]/g, '');
-        if (current.value.length === 1 && nextId) document.getElementById(nextId).focus();
-        sync();
-    }
+    // Inteligentny kod pocztowy (auto-focus i backspace)
+    const zipTiles = document.querySelectorAll('.zip-tile');
+    zipTiles.forEach((tile, idx) => {
+        tile.addEventListener('input', (e) => {
+            tile.value = tile.value.replace(/[^0-9]/g, '');
+            if (tile.value && idx < zipTiles.length - 1) zipTiles[idx+1].focus();
+            sync();
+        });
+        tile.addEventListener('keydown', (e) => {
+            if (e.key === "Backspace" && !tile.value && idx > 0) zipTiles[idx-1].focus();
+        });
+    });
 
     function filterWaste() {
         const input = document.getElementById('searchInput').value.toLowerCase().replace(/\s+/g, '');
@@ -222,6 +242,7 @@
     }
 
     function selectItem(code, name, hint, items, element = null) {
+        // Reset wizualny kafelków
         document.querySelectorAll('.quick-tile').forEach(t => t.classList.remove('active'));
         if(element) element.classList.add('active');
 
@@ -234,6 +255,7 @@
         const uiPanel = document.getElementById('extra-fields');
         const footer = document.getElementById('label-footer');
 
+        // Przełączanie trybu Niebezpieczne / Zwykłe
         if (isDanger) { 
             label.classList.add('danger-mode'); 
             uiPanel.style.display = 'block';
@@ -250,12 +272,13 @@
         document.getElementById('res-name').innerText = name;
         document.getElementById('res-hint').innerText = hint;
 
+        // Generowanie checkboxów
         const cbSection = document.getElementById('checkbox-section');
         const cbDiv = document.getElementById('dynamic-checkboxes');
         cbSection.style.display = 'block';
         cbDiv.innerHTML = items.map(item => `
             <div class="checkbox-item" onclick="toggleCB(this)">
-                <input type="checkbox" value="${item}" onchange="sync(); event.stopPropagation();">
+                <input type="checkbox" value="${item}">
                 <span>${item}</span>
             </div>
         `).join('');
@@ -276,19 +299,20 @@
         let finalContent = checked.join(' / ');
         if (manual) finalContent += (finalContent ? ' / ' : '') + manual;
 
-        document.getElementById('res-content').innerText = finalContent;
+        // Auto-skalowanie czcionki dla długich opisów
+        const contentDiv = document.getElementById('res-content');
+        if (finalContent.length > 50) contentDiv.style.fontSize = '32px';
+        else if (finalContent.length > 30) contentDiv.style.fontSize = '40px';
+        else contentDiv.style.fontSize = '48px';
         
+        contentDiv.innerText = finalContent;
+        
+        // Adres i data
         const place = document.getElementById('placeInput').value;
-        const z1 = document.getElementById('zip1').value;
-        const z2 = document.getElementById('zip2').value;
-        const z3 = document.getElementById('zip3').value;
-        const z4 = document.getElementById('zip4').value;
-        const z5 = document.getElementById('zip5').value;
-        
-        let zip = (z1 && z2) ? z1+z2 : "";
-        if(z3||z4||z5) zip += "-" + (z3||"") + (z4||"") + (z5||"");
+        const zip = Array.from(zipTiles).map(t => t.value);
+        const zipStr = (zip[0] && zip[1]) ? `${zip[0]}${zip[1]}-${zip[2]||''}${zip[3]||''}${zip[4]||''}` : "";
 
-        document.getElementById('lbl-place-full').innerText = (place || "_______________") + (zip.length > 2 ? ", " + zip : "");
+        document.getElementById('lbl-place-full').innerText = (place || "_______________") + (zipStr.length > 3 ? ", " + zipStr : "");
         document.getElementById('lbl-date').innerText = document.getElementById('dateInput').value || "__________";
     }
 
@@ -300,12 +324,13 @@
         btn.innerText = "GENEROWANIE...";
         btn.disabled = true;
 
+        // Ukrycie podpowiedzi pomocniczej na czas renderu
         const hintEl = document.getElementById('res-hint');
         hintEl.style.visibility = 'hidden'; 
 
         try {
             const canvas = await html2canvas(document.getElementById('label-render'), { 
-                scale: 2,
+                scale: 3, // Wyższa jakość do druku
                 useCORS: true,
                 logging: false
             });
@@ -315,7 +340,7 @@
             pdf.addImage(imgData, 'PNG', 0, 0, 297, 210);
             pdf.save(`Etykieta_${code.replace('*','').replace(/\s/g,'')}.pdf`);
         } catch (e) { 
-            alert("Błąd generowania pliku. Spróbuj innej przeglądarki."); 
+            alert("Błąd generowania pliku."); 
             console.error(e);
         } finally {
             hintEl.style.visibility = 'visible';
