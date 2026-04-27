@@ -25,7 +25,6 @@
         .quick-tile.active { background: #333 !important; color: #fff !important; border-color: #000; }
         .quick-tile.danger.active { background: #ce1126 !important; border-color: #ce1126 !important; color: #fff !important; }
 
-        /* Kafelek katalogu - specjalny styl */
         .quick-tile.catalog-tile { border-color: #007bff; color: #007bff; background: #f0f7ff; }
         .quick-tile.catalog-tile b { color: #007bff; }
 
@@ -55,7 +54,7 @@
         .zip-tile { width: 38px; height: 42px; text-align: center; font-weight: bold; border: 2px solid #ddd; border-radius: 6px; font-size: 1.2rem; }
         .zip-tile:focus { border-color: #ce1126; outline: none; }
 
-        /* RENDERER */
+        /* RENDERER PDF */
         #label-render {
             width: 1122px; height: 794px; position: absolute; left: -9999px; 
             background: white; border: 25px solid black; 
@@ -90,6 +89,17 @@
         .address-box { border: 5px solid #ce1126; padding: 12px 20px; font-size: 24px; font-weight: 900; margin-bottom: 10px; background: #fff; }
         .address-box dotted { border: 5px dashed #ce1126; min-height: 70px; border-top: none; margin-top: -15px; }
         .date-box { font-size: 18px; font-weight: bold; text-align: right; }
+
+        /* NOTA PRAWNA - DYSKRETNA */
+        .legal-note {
+            position: absolute;
+            bottom: 8px;
+            right: 60px;
+            font-size: 9px;
+            color: #777;
+            font-style: italic;
+        }
+        #label-render.danger-mode .legal-note { color: #ce1126; opacity: 0.6; }
 
         .btn-gen { background: #28a745; color: white; padding: 18px; font-weight: 800; border-radius: 12px; width: 100%; border: none; font-size: 1.5rem; transition: 0.3s; cursor: pointer; }
         .btn-gen:hover { background: #218838; transform: scale(1.02); }
@@ -188,6 +198,9 @@
         <div class="address-box">Adres miejsca magazynowania: <span id="lbl-place">-</span></div>
         <div class="address-box dotted">Zmiana miejsca magazynowania i data: .....................................................................</div>
         <div class="date-box">DATA ROZPOCZĘCIA TYMCZASOWEGO MAGAZYNOWANIA: <span id="lbl-date">-</span></div>
+    </div>
+    <div class="legal-note">
+        Etykieta zgodna z Rozporządzeniem Ministra Klimatu z dnia 11 września 2020 r. w sprawie szczegółowych wymagań dla magazynowania odpadów.
     </div>
 </div>
 
