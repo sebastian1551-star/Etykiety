@@ -29,7 +29,6 @@
         .tile-board { border-color: #ffc107; color: #856404; background: #fff3cd; }
 
         #selected-waste-info { display: none; background: #f8f9fa; border: 2px solid #000; padding: 15px; border-radius: 12px; margin-bottom: 20px; justify-content: space-between; align-items: center; }
-        #selected-waste-info.danger-info { border-color: #ce1126; background: #fff5f5; }
 
         #content-selection-area { display: none; border-top: 3px solid #f0f0f0; margin-top: 10px; padding-top: 25px; animation: fadeIn 0.5s; }
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
@@ -130,7 +129,7 @@
             <div class="col-md-6">
                 <div id="extra-fields">
                     <div class="section-title"><span>B</span> LOKALIZACJA I DATA</div>
-                    <label class="small mb-1">WYBIERZ MIEJSCOWOŚĆ (AUTO-FILTROWANIE):</label>
+                    <label class="small mb-1">WYBIERZ MIEJSCOWOŚĆ:</label>
                     <input type="text" id="cityInput" list="city-list" class="form-control mb-3" placeholder="Zacznij pisać nazwę bazy..." oninput="handleCityAutoFill(this.value)">
                     <datalist id="city-list"></datalist>
 
@@ -160,7 +159,6 @@
 <div id="label-render"></div>
 
 <script>
-    // POPRAWKA: Dodano brakujący przecinek po 17 09 04
     const WASTES = [
         { code: "15 01 10*", name: "Opakowania zanieczyszczone subst. niebezpiecznymi", items: ["POJEMNIKI PO FARBACH", "OPAKOWANIA PO SMARACH", "AEROZOLE", "BAŃKI PO CHEMII"] },
         { code: "15 02 02*", name: "Sorbenty, czyściwo, ubrania ochronne (skażone)", items: ["SZMATY OLEJOWE", "SORBENT", "FILTRY OLEJU", "ZUŻYTE RĘKAWICE"] },
@@ -176,8 +174,6 @@
         { code: "15 01 02", name: "Opakowania z tworzyw sztucznych", items: ["FOLIA STRETCH", "BAŃKI CZYSTE", "BUTELKI PET", "PALETY PLASTIKOWE"] },
     ];
 
-    // AKTUALIZACJA: Linki do piktogramów
-   // KOMPLETNA LISTA PIKTOGRAMÓW (Wszystkie z SharePoint ENPROM)
     const COMMUNAL = [
         { 
             code: "20 01 01", 
@@ -367,7 +363,8 @@
             const canvas = await html2canvas(document.getElementById('label-render'), { 
                 scale: 2.5,
                 useCORS: true,
-                allowTaint: true
+                allowTaint: true,
+                logging: true
             });
             
             const pdf = new jspdf.jsPDF({ orientation: orient, unit: 'mm', format: 'a4', compress: true });
@@ -378,7 +375,7 @@
             pdf.save(`Etykieta_${(currentWaste.code || "Tablica").replace('*','')}.pdf`);
         } catch (e) {
             console.error(e);
-            alert("Błąd generowania PDF.");
+            alert("Błąd generowania PDF. Jeśli brakuje obrazka, upewnij się, że masz dostęp do SharePoint.");
         } finally {
             btn.innerText = "POBIERZ GOTOWĄ ETYKIETĘ (PDF)";
             btn.disabled = false;
