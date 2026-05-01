@@ -41,6 +41,10 @@
         .checkbox-item.checked { background: #000; color: #fff; border-color: #000; box-shadow: 0 0 10px rgba(0,0,0,0.3); }
         .checkbox-item.danger-checked { background: #ce1126; color: #fff; border-color: #ce1126; box-shadow: 0 0 10px rgba(206,17,38,0.4); }
 
+        .info-box-communal { background: #e7f3ff; border: 1px solid #b2d7ff; padding: 15px; border-radius: 10px; margin-bottom: 15px; font-size: 0.9rem; }
+        .info-box-communal b { color: #0056b3; }
+        .info-box-communal ul { margin: 5px 0 0 18px; padding: 0; }
+
         #extra-fields { display: none; padding: 20px; border-radius: 15px; background: #fff5f5; border: 1px solid #ffdada; margin-top: 20px; }
         .zip-tile { width: 38px; height: 42px; text-align: center; font-weight: bold; border: 2px solid #ddd; border-radius: 6px; font-size: 1.2rem; }
 
@@ -60,7 +64,7 @@
         .dg-table th { border: 2px solid black; padding: 8px; width: 50%; font-size: 15px; text-align: center; background: #f9f9f9; height: 80px; }
         .dg-table td { border: 2px solid black; padding: 10px; font-size: 20px; font-weight: 900; height: 110px; text-align: center; vertical-align: middle; }
 
-        /* TRYB NORMALNY (KOMUNALNE I INNE) */
+        /* TRYB NORMALNY */
         #label-render.normal-mode { width: 1122px; height: 794px; border: 25px solid black; padding: 40px; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; }
         .nm-logo-txt { font-size: 40px; font-weight: 900; margin-bottom: 10px; border-bottom: 3px solid #000; width: 100%; padding-bottom: 10px; }
         .nm-logo-img { max-height: 80px; margin-bottom: 20px; }
@@ -75,7 +79,6 @@
 
         .btn-gen { background: #28a745; color: white; padding: 18px; font-weight: 800; border-radius: 12px; width: 100%; border: none; font-size: 1.5rem; transition: 0.3s; cursor: pointer; }
         .btn-gen:hover { background: #218838; transform: scale(1.02); }
-        .btn-gen:disabled { background: #6c757d; cursor: not-allowed; }
     </style>
 </head>
 <body>
@@ -118,6 +121,8 @@
     </div>
 
     <div id="content-selection-area">
+        <div id="communal-hints" class="info-box-communal" style="display:none;"></div>
+
         <div class="row">
             <div class="col-md-6" id="content-col">
                 <div class="section-title"><span>A</span> ZAWARTOŚĆ / OPCJE</div>
@@ -127,7 +132,7 @@
                 </div>
                 
                 <div id="normal-extra-config" style="display:none;" class="mt-4 p-3 border rounded bg-light">
-                     <label class="small font-weight-bold d-block">FORMAT LOGOTYPU (NAGŁÓWEK):</label>
+                     <label class="small font-weight-bold d-block">FORMAT NAGŁÓWKA:</label>
                      <div class="btn-group btn-group-toggle w-100 mb-3" data-toggle="buttons">
                         <label class="btn btn-outline-dark active">
                           <input type="radio" name="logoType" value="img" checked onchange="sync()"> LOGO (PLIK)
@@ -136,8 +141,6 @@
                           <input type="radio" name="logoType" value="txt" onchange="sync()"> TEKST
                         </label>
                       </div>
-
-                     <label class="small font-weight-bold">TEKST NAGŁÓWKA (jeśli wybrano tekst):</label>
                      <input type="text" id="brandInput" class="form-control" placeholder="Np. ENPROM Sp. z o.o." value="ENPROM" onkeyup="sync()">
                 </div>
             </div>
@@ -178,27 +181,42 @@
     const WASTES = [
         { code: "15 01 10*", name: "Opakowania zanieczyszczone subst. niebezpiecznymi", items: ["POJEMNIKI PO FARBACH", "OPAKOWANIA PO SMARACH", "AEROZOLE", "BAŃKI PO CHEMII"] },
         { code: "15 02 02*", name: "Sorbenty, czyściwo, ubrania ochronne (skażone)", items: ["SZMATY OLEJOWE", "SORBENT", "FILTRY OLEJU", "ZUŻYTE RĘKAWICE"] },
-        { code: "16 02 13*", name: "Zużyte urządzenia (niebezpieczne)", items: ["KOMPUTERY/MONITORY", "ELEKTRONARZĘDZIA", "TRANSFORMATORY"] },
-        { code: "17 04 10*", name: "Kable zawierające ropę, smołę", items: ["KABLE OLEJOWE", "KABLE SMOLOWANE"] },
-        { code: "16 06 01*", name: "Baterie i akumulatory ołowiowe", items: ["AKUMULATORY POJAZDOWE", "BATERIE UPS"] },
-        { code: "17 04 07", name: "Mieszaniny metali", items: ["METALE KOLOROWE", "ZŁOM MIESZANY", "ELEMENTY OSPRZĘTU"] },
-        { code: "17 04 11", name: "Kable inne niż 17 04 10", items: ["KABLE CU (MIEDŹ)", "KABLE AL (ALUMINIUM)", "KABLE IZOLOWANE"] },
         { code: "17 04 05", name: "Żelazo i stal", items: ["KONSTRUKCJE STALOWE", "RURY I PROFILE", "PRĘTY ZBROJENIOWE"] },
+        { code: "17 04 11", name: "Kable inne niż 17 04 10", items: ["KABLE CU (MIEDŹ)", "KABLE AL (ALUMINIUM)", "KABLE IZOLOWANE"] },
         { code: "17 02 01", name: "Drewno", items: ["PALETY EURO", "USZKODZONE SKRZYNIE", "DESKI SZALUNKOWE"] },
-        { code: "17 09 04", name: "Zmieszane odpady z budowy", items: ["GRUZ", "CERAMIKA", "PŁYTY G-K"] },
         { code: "15 01 01", name: "Opakowania z papieru i tektury", items: ["KARTONY", "PAPIER PAKOWY", "TULEJE"] },
-        { code: "15 01 02", name: "Opakowania z tworzyw sztucznych", items: ["FOLIA STRETCH", "BAŃKI CZYSTE", "BUTELKI PET", "PALETY PLASTIKOWE"] },
+        { code: "15 01 02", name: "Opakowania z tworzyw sztucznych", items: ["FOLIA STRETCH", "BAŃKI CZYSTE", "BUTELKI PET"] },
     ];
 
     const COMMUNAL = [
-        { code: "20 01 01", name: "PAPIER", img: "img/papier.jpg" },
-        { code: "20 01 02", name: "SZKŁO", img: "img/szklo.jpg" },
-        { code: "20 01 39", name: "PLASTIK / METAL", img: "img/plastik.jpg" },
-        { code: "20 03 01", name: "ZMIESZANE", img: "img/zmieszane.jpg" },
-        { code: "20 02 01", name: "BIO", img: "img/bio.jpg" }
+        { 
+            code: "20 01 01", name: "PAPIER", img: "img/papier.jpg",
+            yes: "Opakowania z papieru, karton, tektura, gazety, ulotki, zeszyty.",
+            no: "Ręczniki papierowe, zużyte chusteczki, papier lakierowany, worki po nawozach/cemencie."
+        },
+        { 
+            code: "20 01 39", name: "PLASTIK / METAL", img: "img/plastik.jpg",
+            yes: "Odkręcone butelki PET, nakrętki, puszki po napojach, folia stretch, metale kolorowe.",
+            no: "Butelki po olejach silnikowych, opakowania po lekach, baterie, puszki po farbach."
+        },
+        { 
+            code: "20 01 02", name: "SZKŁO", img: "img/szklo.jpg",
+            yes: "Butelki i słoiki szklane po napojach i żywności, opakowania szklane po kosmetykach.",
+            no: "Ceramika, doniczki, szkło okularowe, szkło żaroodporne, żarówki, lustra."
+        },
+        { 
+            code: "20 03 01", name: "ZMIESZANE", img: "img/zmieszane.jpg",
+            yes: "Ręczniki papierowe, zużyte chusteczki, resztki jedzenia (bez kości), tekstylia.",
+            no: "Odpady budowlane, gruz, opony, sprzęt RTV/AGD, baterie, odpady niebezpieczne."
+        },
+        { 
+            code: "20 02 01", name: "BIO", img: "img/bio.jpg",
+            yes: "Skoszona trawa, liście, gałęzie, obierki z warzyw i owoców.",
+            no: "Kości, mięso, odchody zwierząt, ziemia, kamienie, popiół."
+        }
     ];
 
-    const BOARDS = ["ODPADY NIEBEZPIECZNE", "STREFA MAGAZYNOWANIA ODPADÓW", "PUNKT ZBIERANIA ODPADÓW", "MIEJSCE GROMADZENIA ODPADÓW", "ZAKAZ PALENIA"];
+    const BOARDS = ["ODPADY NIEBEZPIECZNE", "STREFA MAGAZYNOWANIA ODPADÓW", "PUNKT ZBIERANIA ODPADÓW", "ZAKAZ PALENIA"];
     
     const LOCATIONS = [
         { name: "Ustka (Duninowo)", zip: "76270", street: "Duninowo 39" },
@@ -234,6 +252,7 @@
         setupUI(waste.name);
         renderLabelTemplate();
         document.getElementById('manual-input-area').style.display = 'block';
+        document.getElementById('communal-hints').style.display = 'none';
         document.getElementById('dynamic-checkboxes').innerHTML = (waste.items || []).map(i => 
             `<div class="checkbox-item" onclick="toggleOption(this)">${i}</div>`
         ).join('');
@@ -246,8 +265,10 @@
         currentWaste = { code: "---", name: "WYBIERZ FRAKCJĘ" };
         setupUI("Odpady Komunalne");
         document.getElementById('manual-input-area').style.display = 'none';
+        document.getElementById('communal-hints').style.display = 'none';
         document.getElementById('dynamic-checkboxes').innerHTML = COMMUNAL.map(c => `
-            <div class="checkbox-item" style="height: 100px; display: flex; align-items: center; justify-content: center;" onclick="selectCommunalItem('${c.code}', '${c.name}', '${c.img}', this)">
+            <div class="checkbox-item" style="height: 80px; display: flex; align-items: center; justify-content: center;" 
+                 onclick="selectCommunalItem('${c.code}', '${c.name}', '${c.img}', this)">
                 <div><b>${c.name}</b><br><small>${c.code}</small></div>
             </div>
         `).join('');
@@ -256,7 +277,17 @@
     function selectCommunalItem(code, name, img, el) {
         document.querySelectorAll('.checkbox-item').forEach(x => x.classList.remove('checked'));
         el.classList.add('checked');
+        const data = COMMUNAL.find(c => c.code === code);
         currentWaste = { code, name, img };
+        
+        const hints = document.getElementById('communal-hints');
+        hints.style.display = 'block';
+        hints.innerHTML = `
+            <b>TREŚĆ EDUKACYJNA DLA FRAKCJI ${name}:</b><br>
+            <span class="text-success">✔ <b>WRZUCAMY:</b> ${data.yes}</span><br>
+            <span class="text-danger">✖ <b>NIE WRZUCAMY:</b> ${data.no}</span>
+        `;
+        
         renderLabelTemplate();
         sync();
     }
@@ -266,6 +297,7 @@
         isCommunal = false;
         currentWaste = { code: "TABLICA", name: "Wybierz treść" };
         setupUI("Tablice Informacyjne");
+        document.getElementById('communal-hints').style.display = 'none';
         document.getElementById('manual-input-area').style.display = 'none';
         document.getElementById('dynamic-checkboxes').innerHTML = BOARDS.map(b => 
             `<div class="checkbox-item" onclick="selectBoard('${b}', this)">${b}</div>`
@@ -313,7 +345,6 @@
                     <tr><td></td><td></td></tr>
                     <tr><td></td><td></td></tr>
                 </table>
-                <div class="dg-row" style="border:none; margin-top:15px; font-size:11px; font-style:italic">Etykieta zgodna z Rozporządzeniem Ministra Klimatu z dnia 11 września 2020 r.</div>
             `;
         } else if (currentMode === "board") {
             r.className = "board-mode";
@@ -342,8 +373,7 @@
         if (!currentWaste) return;
         const selSelector = currentMode === 'danger' ? '.danger-checked' : '.checked';
         const sel = Array.from(document.querySelectorAll(selSelector)).map(i => i.innerText.split('\n')[0]);
-        const contentInput = document.getElementById('contentInput');
-        const man = contentInput ? contentInput.value.toUpperCase() : "";
+        const man = document.getElementById('contentInput') ? document.getElementById('contentInput').value.toUpperCase() : "";
         const contentText = (sel.join(' / ') + (man ? (sel.length > 0 ? ' / ' : '') + man : "")) || "";
 
         if (currentMode === "danger") {
@@ -360,19 +390,15 @@
         } else {
             document.getElementById('res-code').innerText = currentWaste.code || "";
             document.getElementById('res-name').innerText = (currentWaste.name || "").toUpperCase();
-            
-            const resContent = document.getElementById('res-content');
+            const rc = document.getElementById('res-content');
             if (isCommunal) {
-                resContent.style.display = 'none';
-                // W komunalnych zawsze tekst (lub brak nagłówka)
+                rc.style.display = 'none';
                 document.getElementById('res-brand-img').style.display = 'none';
                 document.getElementById('res-brand-txt').style.display = 'block';
                 document.getElementById('res-brand-txt').innerText = "ENPROM";
             } else {
-                resContent.style.display = 'block';
-                resContent.innerText = contentText || "---";
-                
-                // Obsługa wyboru Logo vs Tekst (tylko dla Normalnych)
+                rc.style.display = 'block';
+                rc.innerText = contentText || "---";
                 const logoType = document.querySelector('input[name="logoType"]:checked').value;
                 if(logoType === 'img') {
                     document.getElementById('res-brand-img').style.display = 'inline-block';
@@ -383,40 +409,25 @@
                     document.getElementById('res-brand-txt').innerText = document.getElementById('brandInput').value || "ENPROM";
                 }
             }
-
             const img = document.getElementById('res-img');
-            if(currentWaste.img) {
-                img.src = currentWaste.img;
-                img.style.display = 'block';
-                img.style.maxHeight = isCommunal ? "450px" : "300px";
-            } else {
-                img.style.display = 'none';
-            }
+            if(currentWaste.img) { img.src = currentWaste.img; img.style.display = 'block'; } else { img.style.display = 'none'; }
         }
     }
 
     async function generatePDF() {
         const btn = document.getElementById('btnGen');
-        btn.innerText = "⏳ TRWA GENEROWANIE...";
+        btn.innerText = "⏳ GENEROWANIE...";
         btn.disabled = true;
-
         try {
             const orient = (currentMode === "danger") ? 'p' : 'l';
-            const canvas = await html2canvas(document.getElementById('label-render'), { 
-                scale: 3, 
-                useCORS: true,
-                allowTaint: true
-            });
-            
-            const pdf = new jspdf.jsPDF({ orientation: orient, unit: 'mm', format: 'a4', compress: true });
+            const canvas = await html2canvas(document.getElementById('label-render'), { scale: 3, useCORS: true });
+            const pdf = new jspdf.jsPDF({ orientation: orient, unit: 'mm', format: 'a4' });
             const w = orient === 'p' ? 210 : 297;
             const h = orient === 'p' ? 297 : 210;
-            
             pdf.addImage(canvas.toDataURL('image/jpeg', 0.95), 'JPEG', 0, 0, w, h);
             pdf.save(`Etykieta_${(currentWaste.code || "Tablica").replace('*','')}.pdf`);
         } catch (e) {
-            console.error(e);
-            alert("Błąd generowania. Upewnij się, że plik ENPROM.jpg znajduje się w głównym folderze.");
+            alert("Błąd generowania PDF.");
         } finally {
             btn.innerText = "POBIERZ GOTOWĄ ETYKIETĘ (PDF)";
             btn.disabled = false;
@@ -439,6 +450,5 @@
         t.onkeydown = (e) => { if(e.key === 'Backspace' && !t.value && i > 0) { arr[i-1].focus(); } };
     });
 </script>
-
 </body>
 </html>
