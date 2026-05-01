@@ -45,10 +45,9 @@
         #extra-fields { display: none; padding: 20px; border-radius: 15px; background: #fff5f5; border: 1px solid #ffdada; margin-top: 20px; }
         .zip-tile { width: 38px; height: 42px; text-align: center; font-weight: bold; border: 2px solid #ddd; border-radius: 6px; font-size: 1.2rem; }
 
-        /* RENDERER - HIDDEN FROM VIEW BUT USED BY HTML2CANVAS */
+        /* RENDERER */
         #label-render { position: absolute; left: -9999px; background: white; color: black; box-sizing: border-box; }
         
-        /* Styl Niebezpieczny - A4 Pion */
         #label-render.danger-mode { width: 794px; height: 1122px; border: 15px solid red; padding: 30px; display: block; }
         .dg-title { font-size: 52px; font-weight: 900; text-align: center; margin-bottom: 20px; }
         .dg-row { border: 2px solid black; margin-bottom: -2px; padding: 10px 15px; }
@@ -61,7 +60,6 @@
         .dg-table th { border: 2px solid black; padding: 8px; width: 50%; font-size: 15px; text-align: center; background: #f9f9f9; height: 80px; }
         .dg-table td { border: 2px solid black; padding: 10px; font-size: 20px; font-weight: 900; height: 110px; text-align: center; vertical-align: middle; }
 
-        /* Styl Normalny - A4 Poziom */
         #label-render.normal-mode { width: 1122px; height: 794px; border: 25px solid black; padding: 50px; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; }
         .nm-logo { font-size: 40px; font-weight: 900; margin-bottom: 20px; border-bottom: 3px solid #000; width: 100%; padding-bottom: 10px; }
         .nm-code { font-size: 150px; font-weight: 900; line-height: 1; }
@@ -69,7 +67,6 @@
         .nm-content { font-size: 50px; font-weight: 900; border-top: 8px solid black; padding-top: 30px; width: 100%; }
         .nm-icon { max-height: 220px; margin-top: 20px; }
 
-        /* Styl Tablicy - CZARNE OBRAMOWANIE */
         #label-render.board-mode { width: 1122px; height: 794px; border: 25px solid black; display: flex; align-items: center; justify-content: center; }
         .board-text { font-size: 110px; font-weight: 900; text-align: center; text-transform: uppercase; padding: 40px; }
 
@@ -85,7 +82,6 @@
         <h2 style="font-weight: 900; letter-spacing: -1px;">GENERATOR ETYKIET ENPROM</h2>
     </div>
 
-    <!-- 1. NARZĘDZIA -->
     <div id="nav-tools">
         <div class="section-title"><span>1</span> TYPY ETYKIET I TABLIC</div>
         <div class="quick-select-grid">
@@ -110,7 +106,6 @@
         <div class="quick-select-grid" id="grid-danger"></div>
     </div>
 
-    <!-- 3. WYBÓR SZCZEGÓŁÓW -->
     <div id="selected-waste-info">
         <div>
             <strong id="info-code" style="font-size: 1.4rem;"></strong><br>
@@ -126,7 +121,6 @@
                 <div id="dynamic-checkboxes" class="checkbox-grid"></div>
                 <input type="text" id="contentInput" class="form-control form-control-lg" placeholder="Wpisz ręcznie jeśli brak powyżej..." onkeyup="sync()">
                 
-                <!-- OPCJONALNE LOGO / NAZWA DLA ODPADÓW ZWYKŁYCH -->
                 <div id="normal-extra-config" style="display:none;" class="mt-3">
                      <label class="small font-weight-bold">NAGŁÓWEK ETYKIETY (LOGO/NAZWA):</label>
                      <input type="text" id="brandInput" class="form-control" placeholder="Np. ENPROM Sp. z o.o." value="ENPROM" onkeyup="sync()">
@@ -166,6 +160,7 @@
 <div id="label-render"></div>
 
 <script>
+    // POPRAWKA: Dodano brakujący przecinek po 17 09 04
     const WASTES = [
         { code: "15 01 10*", name: "Opakowania zanieczyszczone subst. niebezpiecznymi", items: ["POJEMNIKI PO FARBACH", "OPAKOWANIA PO SMARACH", "AEROZOLE", "BAŃKI PO CHEMII"] },
         { code: "15 02 02*", name: "Sorbenty, czyściwo, ubrania ochronne (skażone)", items: ["SZMATY OLEJOWE", "SORBENT", "FILTRY OLEJU", "ZUŻYTE RĘKAWICE"] },
@@ -176,17 +171,18 @@
         { code: "17 04 11", name: "Kable inne niż 17 04 10", items: ["KABLE CU (MIEDŹ)", "KABLE AL (ALUMINIUM)", "KABLE IZOLOWANE"] },
         { code: "17 04 05", name: "Żelazo i stal", items: ["KONSTRUKCJE STALOWE", "RURY I PROFILE", "PRĘTY ZBROJENIOWE"] },
         { code: "17 02 01", name: "Drewno", items: ["PALETY EURO", "USZKODZONE SKRZYNIE", "DESKI SZALUNKOWE"] },
-        { code: "17 09 04", name: "Zmieszane odpady z budowy", items: ["GRUZ", "CERAMIKA", "PŁYTY G-K"] }
+        { code: "17 09 04", name: "Zmieszane odpady z budowy", items: ["GRUZ", "CERAMIKA", "PŁYTY G-K"] },
         { code: "15 01 01", name: "Opakowania z papieru i tektury", items: ["KARTONY", "PAPIER PAKOWY", "TULEJE"] },
         { code: "15 01 02", name: "Opakowania z tworzyw sztucznych", items: ["FOLIA STRETCH", "BAŃKI CZYSTE", "BUTELKI PET", "PALETY PLASTIKOWE"] },
     ];
 
+    // AKTUALIZACJA: Linki do piktogramów
     const COMMUNAL = [
-        { code: "20 01 01", name: "PAPIER I TEKTURA", img: "https://cdn-icons-png.flaticon.com/512/2541/2541991.png" },
-        { code: "20 01 02", name: "SZKŁO", img: "https://cdn-icons-png.flaticon.com/512/5029/5029191.png" },
-        { code: "20 01 39", name: "TWORZYWA I METALE", img: "https://cdn-icons-png.flaticon.com/512/2666/2666631.png" },
-        { code: "20 03 01", name: "ZMIESZANE", img: "https://cdn-icons-png.flaticon.com/512/1165/1165651.png" },
-        { code: "20 02 01", name: "BIO", img: "https://cdn-icons-png.flaticon.com/512/2316/2316524.png" }
+        { code: "20 01 01", name: "PAPIER I TEKTURA", img: "https://raw.githubusercontent.com/sebastian1551-star/Wybierak/main/icons/papier.png" },
+        { code: "20 01 02", name: "SZKŁO", img: "https://raw.githubusercontent.com/sebastian1551-star/Wybierak/main/icons/szklo.png" },
+        { code: "20 01 39", name: "TWORZYWA I METALE", img: "https://raw.githubusercontent.com/sebastian1551-star/Wybierak/main/icons/plastik.png" },
+        { code: "20 03 01", name: "ZMIESZANE", img: "https://raw.githubusercontent.com/sebastian1551-star/Wybierak/main/icons/zmieszane.png" },
+        { code: "20 02 01", name: "BIO", img: "https://raw.githubusercontent.com/sebastian1551-star/Wybierak/main/icons/bio.png" }
     ];
 
     const BOARDS = ["ODPADY NIEBEZPIECZNE", "STREFA MAGAZYNOWANIA ODPADÓW", "PUNKT ZBIERANIA ODPADÓW", "MIEJSCE GROMADZENIA ODPADÓW", "ZAKAZ PALENIA"];
@@ -358,7 +354,7 @@
             const h = orient === 'p' ? 297 : 210;
             
             pdf.addImage(canvas.toDataURL('image/jpeg', 0.95), 'JPEG', 0, 0, w, h);
-            pdf.save(`Etykieta_${currentWaste.code.replace('*','') || "Tablica"}.pdf`);
+            pdf.save(`Etykieta_${(currentWaste.code || "Tablica").replace('*','')}.pdf`);
         } catch (e) {
             console.error(e);
             alert("Błąd generowania PDF.");
