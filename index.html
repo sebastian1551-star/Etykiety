@@ -61,13 +61,21 @@
         .dg-table td { border: 2px solid black; padding: 10px; font-size: 20px; font-weight: 900; height: 110px; text-align: center; vertical-align: middle; }
 
         /* TRYB NORMALNY (KOMUNALNE I INNE) */
-        #label-render.normal-mode { width: 1122px; height: 794px; border: 25px solid black; padding: 40px; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; }
+        #label-render.normal-mode { width: 1122px; height: 794px; border: 25px solid black; padding: 30px; display: flex; flex-direction: column; align-items: center; justify-content: flex-start; text-align: center; }
         .nm-logo-txt { font-size: 40px; font-weight: 900; margin-bottom: 10px; border-bottom: 3px solid #000; width: 100%; padding-bottom: 10px; }
-        .nm-logo-img { max-height: 80px; margin-bottom: 20px; }
-        .nm-code { font-size: 120px; font-weight: 900; line-height: 0.9; margin-bottom: 10px; }
-        .nm-name { font-size: 55px; font-weight: 900; text-transform: uppercase; margin-bottom: 20px; color: #000; }
-        .nm-content { font-size: 45px; font-weight: 800; border-top: 5px solid black; padding-top: 20px; width: 100%; min-height: 60px; }
-        .nm-icon { max-height: 380px; margin-top: 10px; }
+        .nm-logo-img { max-height: 60px; margin-bottom: 10px; }
+        .nm-code { font-size: 90px; font-weight: 900; line-height: 0.9; margin-bottom: 5px; }
+        .nm-name { font-size: 50px; font-weight: 900; text-transform: uppercase; margin-bottom: 10px; color: #000; }
+        .nm-content { font-size: 35px; font-weight: 800; border-top: 5px solid black; padding-top: 15px; width: 100%; min-height: 50px; }
+        .nm-icon { max-height: 250px; margin-top: 5px; }
+
+        /* SEKCJA WRZUCAMY/NIE WRZUCAMY NA ETYKIECIE */
+        .communal-desc { display: flex; width: 100%; border-top: 3px solid black; margin-top: 15px; padding-top: 10px; text-align: left; }
+        .desc-box { width: 50%; padding: 0 15px; }
+        .desc-title { font-weight: 900; font-size: 22px; text-transform: uppercase; margin-bottom: 5px; }
+        .desc-list { font-size: 18px; font-weight: bold; line-height: 1.2; }
+        .text-green { color: #28a745; }
+        .text-red { color: #ce1126; }
 
         /* TRYB TABLICE */
         #label-render.board-mode { width: 1122px; height: 794px; border: 25px solid black; display: flex; align-items: center; justify-content: center; }
@@ -191,11 +199,11 @@
     ];
 
     const COMMUNAL = [
-        { code: "20 01 01", name: "PAPIER", img: "img/papier.jpg" },
-        { code: "20 01 02", name: "SZKŁO", img: "img/szklo.jpg" },
-        { code: "20 01 39", name: "PLASTIK / METAL", img: "img/plastik.jpg" },
-        { code: "20 03 01", name: "ZMIESZANE", img: "img/zmieszane.jpg" },
-        { code: "20 02 01", name: "BIO", img: "img/bio.jpg" }
+        { code: "20 01 01", name: "PAPIER", img: "img/papier.jpg", yes: "Karton, gazety, ulotki, zeszyty, papier biurowy", no: "Brudny papier, ręczniki papierowe, kartony po mleku" },
+        { code: "20 01 02", name: "SZKŁO", img: "img/szklo.jpg", yes: "Butelki po napojach, słoiki po żywności, szklane opakowania", no: "Ceramika, lustra, szyby, żarówki, termometry" },
+        { code: "20 01 39", name: "PLASTIK / METAL", img: "img/plastik.jpg", yes: "Zgniecione butelki PET, puszki, folia, kapsle, nakrętki", no: "Opakowania po lekach, baterie, puszki po farbach" },
+        { code: "20 03 01", name: "ZMIESZANE", img: "img/zmieszane.jpg", yes: "Ręczniki papierowe, zużyte maseczki, resztki jedzenia (mięsne)", no: "Odpady niebezpieczne, elektroodpady, gruz, baterie" },
+        { code: "20 02 01", name: "BIO", img: "img/bio.jpg", yes: "Obierki, resztki owoców i warzyw, skoszona trawa, gałęzie", no: "Kości, mięso, odchody zwierząt, ziemia, kamienie" }
     ];
 
     const BOARDS = ["ODPADY NIEBEZPIECZNE", "STREFA MAGAZYNOWANIA ODPADÓW", "PUNKT ZBIERANIA ODPADÓW", "MIEJSCE GROMADZENIA ODPADÓW", "ZAKAZ PALENIA"];
@@ -247,16 +255,16 @@
         setupUI("Odpady Komunalne");
         document.getElementById('manual-input-area').style.display = 'none';
         document.getElementById('dynamic-checkboxes').innerHTML = COMMUNAL.map(c => `
-            <div class="checkbox-item" style="height: 100px; display: flex; align-items: center; justify-content: center;" onclick="selectCommunalItem('${c.code}', '${c.name}', '${c.img}', this)">
+            <div class="checkbox-item" style="height: 100px; display: flex; align-items: center; justify-content: center;" onclick="selectCommunalItem('${c.code}', '${c.name}', '${c.img}', '${c.yes}', '${c.no}', this)">
                 <div><b>${c.name}</b><br><small>${c.code}</small></div>
             </div>
         `).join('');
     }
 
-    function selectCommunalItem(code, name, img, el) {
+    function selectCommunalItem(code, name, img, yes, no, el) {
         document.querySelectorAll('.checkbox-item').forEach(x => x.classList.remove('checked'));
         el.classList.add('checked');
-        currentWaste = { code, name, img };
+        currentWaste = { code, name, img, yes, no };
         renderLabelTemplate();
         sync();
     }
@@ -329,6 +337,16 @@
                 <div id="res-name" class="nm-name"></div>
                 <div id="res-content" class="nm-content"></div>
                 <img id="res-img" class="nm-icon" src="" crossorigin="anonymous">
+                <div id="res-communal-desc" class="communal-desc" style="display:none">
+                    <div class="desc-box">
+                        <div class="desc-title text-green">Wrzucamy:</div>
+                        <div id="res-yes" class="desc-list"></div>
+                    </div>
+                    <div class="desc-box">
+                        <div class="desc-title text-red">Nie wrzucamy:</div>
+                        <div id="res-no" class="desc-list"></div>
+                    </div>
+                </div>
             `;
         }
     }
@@ -364,15 +382,21 @@
             const resContent = document.getElementById('res-content');
             if (isCommunal) {
                 resContent.style.display = 'none';
-                // W komunalnych zawsze tekst (lub brak nagłówka)
                 document.getElementById('res-brand-img').style.display = 'none';
                 document.getElementById('res-brand-txt').style.display = 'block';
                 document.getElementById('res-brand-txt').innerText = "ENPROM";
+                
+                // Wyświetlanie opisu wrzucamy/nie wrzucamy
+                if(currentWaste.yes) {
+                    document.getElementById('res-communal-desc').style.display = 'flex';
+                    document.getElementById('res-yes').innerText = currentWaste.yes;
+                    document.getElementById('res-no').innerText = currentWaste.no;
+                }
             } else {
                 resContent.style.display = 'block';
                 resContent.innerText = contentText || "---";
+                document.getElementById('res-communal-desc').style.display = 'none';
                 
-                // Obsługa wyboru Logo vs Tekst (tylko dla Normalnych)
                 const logoType = document.querySelector('input[name="logoType"]:checked').value;
                 if(logoType === 'img') {
                     document.getElementById('res-brand-img').style.display = 'inline-block';
@@ -388,7 +412,6 @@
             if(currentWaste.img) {
                 img.src = currentWaste.img;
                 img.style.display = 'block';
-                img.style.maxHeight = isCommunal ? "450px" : "300px";
             } else {
                 img.style.display = 'none';
             }
