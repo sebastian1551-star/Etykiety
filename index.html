@@ -67,9 +67,12 @@
         .nm-code { font-size: 90px; font-weight: 900; line-height: 0.9; margin-bottom: 5px; }
         .nm-name { font-size: 50px; font-weight: 900; text-transform: uppercase; margin-bottom: 10px; color: #000; }
         .nm-content { font-size: 35px; font-weight: 800; border-top: 5px solid black; padding-top: 15px; width: 100%; min-height: 50px; }
-        .nm-icon { max-height: 250px; margin-top: 5px; }
+        
+        /* KONTENER NA DWIE IKONY */
+        .nm-icons-row { display: flex; align-items: center; justify-content: center; width: 100%; margin: 15px 0; gap: 50px; }
+        .nm-icon { max-height: 250px; object-fit: contain; }
 
-        /* SEKCJA WRZUCAMY/NIE WRZUCAMY NA ETYKIECIE */
+        /* SEKCJA WRZUCAMY/NIE WRZUCAMY */
         .communal-desc { display: flex; width: 100%; border-top: 3px solid black; margin-top: 15px; padding-top: 10px; text-align: left; }
         .desc-box { width: 50%; padding: 0 15px; }
         .desc-title { font-weight: 900; font-size: 22px; text-transform: uppercase; margin-bottom: 5px; }
@@ -199,11 +202,11 @@
     ];
 
     const COMMUNAL = [
-        { code: "20 01 01", name: "PAPIER", img: "img/papier.jpg", yes: "Karton, gazety, ulotki, zeszyty, papier biurowy", no: "Brudny papier, ręczniki papierowe, kartony po mleku" },
-        { code: "20 01 02", name: "SZKŁO", img: "img/szklo.jpg", yes: "Butelki po napojach, słoiki po żywności, szklane opakowania", no: "Ceramika, lustra, szyby, żarówki, termometry" },
-        { code: "20 01 39", name: "PLASTIK / METAL", img: "img/plastik.jpg", yes: "Zgniecione butelki PET, puszki, folia, kapsle, nakrętki", no: "Opakowania po lekach, baterie, puszki po farbach" },
-        { code: "20 03 01", name: "ZMIESZANE", img: "img/zmieszane.jpg", yes: "Ręczniki papierowe, zużyte maseczki, resztki jedzenia (mięsne)", no: "Odpady niebezpieczne, elektroodpady, gruz, baterie" },
-        { code: "20 02 01", name: "BIO", img: "img/bio.jpg", yes: "Obierki, resztki owoców i warzyw, skoszona trawa, gałęzie", no: "Kości, mięso, odchody zwierząt, ziemia, kamienie" }
+        { code: "20 01 01", name: "PAPIER", img: "img/papier.jpg", icon: "img2/papier.jpeg", yes: "Karton, gazety, ulotki, zeszyty, papier biurowy", no: "Brudny papier, ręczniki papierowe, kartony po mleku" },
+        { code: "20 01 02", name: "SZKŁO", img: "img/szklo.jpg", icon: "img2/szkło.jpeg", yes: "Butelki po napojach, słoiki po żywności, szklane opakowania", no: "Ceramika, lustra, szyby, żarówki, termometry" },
+        { code: "20 01 39", name: "PLASTIK / METAL", img: "img/plastik.jpg", icon: "img2/plastik.jpeg", yes: "Zgniecione butelki PET, puszki, folia, kapsle, nakrętki", no: "Opakowania po lekach, baterie, puszki po farbach" },
+        { code: "20 03 01", name: "ZMIESZANE", img: "img/zmieszane.jpg", icon: "img2/zmieszane.jpeg", yes: "Ręczniki papierowe, zużyte maseczki, resztki jedzenia (mięsne)", no: "Odpady niebezpieczne, elektroodpady, gruz, baterie" },
+        { code: "20 02 01", name: "BIO", img: "img/bio.jpg", icon: "img2/bio.jpeg", yes: "Obierki, resztki owoców i warzyw, skoszona trawa, gałęzie", no: "Kości, mięso, odchody zwierząt, ziemia, kamienie" }
     ];
 
     const BOARDS = ["ODPADY NIEBEZPIECZNE", "STREFA MAGAZYNOWANIA ODPADÓW", "PUNKT ZBIERANIA ODPADÓW", "MIEJSCE GROMADZENIA ODPADÓW", "ZAKAZ PALENIA"];
@@ -255,16 +258,16 @@
         setupUI("Odpady Komunalne");
         document.getElementById('manual-input-area').style.display = 'none';
         document.getElementById('dynamic-checkboxes').innerHTML = COMMUNAL.map(c => `
-            <div class="checkbox-item" style="height: 100px; display: flex; align-items: center; justify-content: center;" onclick="selectCommunalItem('${c.code}', '${c.name}', '${c.img}', '${c.yes}', '${c.no}', this)">
+            <div class="checkbox-item" style="height: 100px; display: flex; align-items: center; justify-content: center;" onclick="selectCommunalItem('${c.code}', '${c.name}', '${c.img}', '${c.icon}', '${c.yes}', '${c.no}', this)">
                 <div><b>${c.name}</b><br><small>${c.code}</small></div>
             </div>
         `).join('');
     }
 
-    function selectCommunalItem(code, name, img, yes, no, el) {
+    function selectCommunalItem(code, name, img, icon, yes, no, el) {
         document.querySelectorAll('.checkbox-item').forEach(x => x.classList.remove('checked'));
         el.classList.add('checked');
-        currentWaste = { code, name, img, yes, no };
+        currentWaste = { code, name, img, icon, yes, no };
         renderLabelTemplate();
         sync();
     }
@@ -336,7 +339,12 @@
                 <div id="res-code" class="nm-code"></div>
                 <div id="res-name" class="nm-name"></div>
                 <div id="res-content" class="nm-content"></div>
-                <img id="res-img" class="nm-icon" src="" crossorigin="anonymous">
+                
+                <div class="nm-icons-row">
+                    <img id="res-img-bin" class="nm-icon" src="" crossorigin="anonymous" style="display:none">
+                    <img id="res-img-icon" class="nm-icon" src="" crossorigin="anonymous" style="display:none">
+                </div>
+
                 <div id="res-communal-desc" class="communal-desc" style="display:none">
                     <div class="desc-box">
                         <div class="desc-title text-green">Wrzucamy:</div>
@@ -380,22 +388,33 @@
             document.getElementById('res-name').innerText = (currentWaste.name || "").toUpperCase();
             
             const resContent = document.getElementById('res-content');
+            const imgBin = document.getElementById('res-img-bin');
+            const imgIcon = document.getElementById('res-img-icon');
+
             if (isCommunal) {
                 resContent.style.display = 'none';
                 document.getElementById('res-brand-img').style.display = 'none';
                 document.getElementById('res-brand-txt').style.display = 'block';
                 document.getElementById('res-brand-txt').innerText = "ENPROM";
                 
-                // Wyświetlanie opisu wrzucamy/nie wrzucamy
                 if(currentWaste.yes) {
                     document.getElementById('res-communal-desc').style.display = 'flex';
                     document.getElementById('res-yes').innerText = currentWaste.yes;
                     document.getElementById('res-no').innerText = currentWaste.no;
                 }
+
+                if(currentWaste.img && currentWaste.icon) {
+                    imgBin.src = currentWaste.img;
+                    imgBin.style.display = 'block';
+                    imgIcon.src = currentWaste.icon;
+                    imgIcon.style.display = 'block';
+                }
             } else {
                 resContent.style.display = 'block';
                 resContent.innerText = contentText || "---";
                 document.getElementById('res-communal-desc').style.display = 'none';
+                imgBin.style.display = 'none';
+                imgIcon.style.display = 'none';
                 
                 const logoType = document.querySelector('input[name="logoType"]:checked').value;
                 if(logoType === 'img') {
@@ -406,14 +425,6 @@
                     document.getElementById('res-brand-txt').style.display = 'block';
                     document.getElementById('res-brand-txt').innerText = document.getElementById('brandInput').value || "ENPROM";
                 }
-            }
-
-            const img = document.getElementById('res-img');
-            if(currentWaste.img) {
-                img.src = currentWaste.img;
-                img.style.display = 'block';
-            } else {
-                img.style.display = 'none';
             }
         }
     }
@@ -439,7 +450,7 @@
             pdf.save(`Etykieta_${(currentWaste.code || "Tablica").replace('*','')}.pdf`);
         } catch (e) {
             console.error(e);
-            alert("Błąd generowania. Upewnij się, że plik ENPROM.jpg znajduje się w głównym folderze.");
+            alert("Błąd generowania. Upewnij się, że grafiki są dostępne w repozytorium.");
         } finally {
             btn.innerText = "POBIERZ GOTOWĄ ETYKIETĘ (PDF)";
             btn.disabled = false;
