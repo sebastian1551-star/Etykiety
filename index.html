@@ -5,7 +5,6 @@
     <title>GENERATOR ETYKIET ENPROM - PRO EXPERT 2026</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
-    <!-- POPRAWKA: Poprawny import jsPDF -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     
@@ -190,7 +189,7 @@
         { code: "16 06 01*", name: "Baterie i akumulatory ołowiowe", items: ["AKUMULATORY POJAZDOWE", "BATERIE UPS"] },
         { code: "17 04 07", name: "Mieszaniny metali", items: ["METALE KOLOROWE", "ZŁOM MIESZANY", "ELEMENTY OSPRZĘTU"] },
         { code: "17 04 11", name: "Kable inne niż 17 04 10", items: ["KABLE CU (MIEDŹ)", "KABLE AL (ALUMINIUM)", "KABLE IZOLOWANE"] },
-        { code: "17 04 05", name: "Żelazo i stal", items: ["KONSTRUKCJE STALOWE", "RURY I PROFILE", "PRĘTY ZBROJENIOWE"] },
+        { code: "17 04 05", name: "Żelazo i stal", items: ["KONSTRUKCJE STALOWE", "RURY I PROFILE", "PRĘTY ZBROJENIOWE"], piktogram: "170405.png" },
         { code: "17 02 01", name: "Drewno", items: ["PALETY EURO", "USZKODZONE SKRZYNIE", "DESKI SZALUNKOWE"] },
         { code: "17 09 04", name: "Zmieszane odpady z budowy", items: ["GRUZ", "CERAMIKA", "PŁYTY G-K"] },
         { code: "15 01 01", name: "Opakowania z papieru i tektury", items: ["KARTONY", "PAPIER PAKOWY", "TULEJE"] },
@@ -339,6 +338,8 @@
                 <div class="nm-icons-row">
                     <img id="res-img-bin" class="nm-icon" src="" crossorigin="anonymous" style="display:none">
                     <img id="res-img-icon" class="nm-icon" src="" crossorigin="anonymous" style="display:none">
+                    <!-- Dodatkowy piktogram dla odpadów zwykłych -->
+                    <img id="res-img-piktogram" class="nm-icon" src="" crossorigin="anonymous" style="display:none">
                 </div>
 
                 <div id="res-communal-desc" class="communal-desc" style="display:none">
@@ -386,6 +387,7 @@
             const resContent = document.getElementById('res-content');
             const imgBin = document.getElementById('res-img-bin');
             const imgIcon = document.getElementById('res-img-icon');
+            const imgPiktogram = document.getElementById('res-img-piktogram');
 
             if (isCommunal) {
                 if(resContent) resContent.style.display = 'none';
@@ -404,6 +406,7 @@
                     imgBin.style.display = 'block';
                     imgIcon.src = currentWaste.icon;
                     imgIcon.style.display = 'block';
+                    if(imgPiktogram) imgPiktogram.style.display = 'none';
                 }
             } else {
                 if(resContent) {
@@ -413,6 +416,14 @@
                 document.getElementById('res-communal-desc').style.display = 'none';
                 imgBin.style.display = 'none';
                 imgIcon.style.display = 'none';
+                
+                // Obsługa piktogramu dla odpadów zwykłych (np. Żelazo i stal)
+                if(currentWaste.piktogram) {
+                    imgPiktogram.src = currentWaste.piktogram;
+                    imgPiktogram.style.display = 'block';
+                } else {
+                    if(imgPiktogram) imgPiktogram.style.display = 'none';
+                }
                 
                 const logoRadio = document.querySelector('input[name="logoType"]:checked');
                 const logoType = logoRadio ? logoRadio.value : 'img';
@@ -443,7 +454,6 @@
                 backgroundColor: "#ffffff"
             });
             
-            // POPRAWKA: Prawidłowa inicjalizacja jsPDF z przestrzeni nazw umd
             const { jsPDF } = window.jspdf;
             const pdf = new jsPDF({ orientation: orient, unit: 'mm', format: 'a4' });
             const w = orient === 'p' ? 210 : 297;
