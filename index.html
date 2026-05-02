@@ -133,18 +133,23 @@
                 </div>
                 
                 <div id="normal-extra-config" style="display:none;" class="mt-4 p-3 border rounded bg-light">
-                     <label class="small font-weight-bold d-block">FORMAT LOGOTYPU (NAGŁÓWEK):</label>
+                     <label class="small font-weight-bold d-block">KONFIGURACJA NAGŁÓWKA:</label>
                      <div class="btn-group btn-group-toggle w-100 mb-3" data-toggle="buttons">
                         <label class="btn btn-outline-dark active">
-                          <input type="radio" name="logoType" value="img" checked onchange="sync()"> LOGO (PLIK)
+                          <input type="radio" name="logoType" value="img" checked onchange="sync()"> LOGO
                         </label>
                         <label class="btn btn-outline-dark">
                           <input type="radio" name="logoType" value="txt" onchange="sync()"> TEKST
                         </label>
+                        <label class="btn btn-outline-dark">
+                            <input type="radio" name="logoType" value="none" onchange="sync()"> BRAK
+                        </label>
                       </div>
 
-                     <label class="small font-weight-bold">TEKST NAGŁÓWKA (jeśli wybrano tekst):</label>
-                     <input type="text" id="brandInput" class="form-control" placeholder="Np. ENPROM Sp. z o.o." value="ENPROM" onkeyup="sync()">
+                     <div id="brand-text-input-group">
+                        <label class="small font-weight-bold">TEKST NAGŁÓWKA:</label>
+                        <input type="text" id="brandInput" class="form-control" placeholder="Np. ENPROM Sp. z o.o." value="ENPROM" onkeyup="sync()">
+                     </div>
                 </div>
             </div>
 
@@ -338,7 +343,6 @@
                 <div class="nm-icons-row">
                     <img id="res-img-bin" class="nm-icon" src="" crossorigin="anonymous" style="display:none">
                     <img id="res-img-icon" class="nm-icon" src="" crossorigin="anonymous" style="display:none">
-                    <!-- Dodatkowy piktogram dla odpadów zwykłych -->
                     <img id="res-img-piktogram" class="nm-icon" src="" crossorigin="anonymous" style="display:none">
                 </div>
 
@@ -388,9 +392,11 @@
             const imgBin = document.getElementById('res-img-bin');
             const imgIcon = document.getElementById('res-img-icon');
             const imgPiktogram = document.getElementById('res-img-piktogram');
+            const brandCont = document.getElementById('res-brand-container');
 
             if (isCommunal) {
                 if(resContent) resContent.style.display = 'none';
+                brandCont.style.display = 'block';
                 document.getElementById('res-brand-img').style.display = 'none';
                 document.getElementById('res-brand-txt').style.display = 'block';
                 document.getElementById('res-brand-txt').innerText = "ENPROM";
@@ -417,7 +423,6 @@
                 imgBin.style.display = 'none';
                 imgIcon.style.display = 'none';
                 
-                // Obsługa piktogramu dla odpadów zwykłych (np. Żelazo i stal)
                 if(currentWaste.piktogram) {
                     imgPiktogram.src = currentWaste.piktogram;
                     imgPiktogram.style.display = 'block';
@@ -427,14 +432,22 @@
                 
                 const logoRadio = document.querySelector('input[name="logoType"]:checked');
                 const logoType = logoRadio ? logoRadio.value : 'img';
+                const inputGrp = document.getElementById('brand-text-input-group');
                 
                 if(logoType === 'img') {
+                    brandCont.style.display = 'block';
                     document.getElementById('res-brand-img').style.display = 'inline-block';
                     document.getElementById('res-brand-txt').style.display = 'none';
-                } else {
+                    inputGrp.style.display = 'none';
+                } else if (logoType === 'txt') {
+                    brandCont.style.display = 'block';
                     document.getElementById('res-brand-img').style.display = 'none';
                     document.getElementById('res-brand-txt').style.display = 'block';
                     document.getElementById('res-brand-txt').innerText = document.getElementById('brandInput').value || "ENPROM";
+                    inputGrp.style.display = 'block';
+                } else {
+                    brandCont.style.display = 'none';
+                    inputGrp.style.display = 'none';
                 }
             }
         }
