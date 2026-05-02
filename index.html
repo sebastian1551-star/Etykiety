@@ -60,7 +60,7 @@
         .dg-table th { border: 2px solid black; padding: 8px; width: 50%; font-size: 15px; text-align: center; background: #f9f9f9; height: 80px; }
         .dg-table td { border: 2px solid black; padding: 10px; font-size: 20px; font-weight: 900; height: 110px; text-align: center; vertical-align: middle; }
 
-        /* TRYB NORMALNY */
+        /* TRYB NORMALNY (KOMUNALNE I INNE) */
         #label-render.normal-mode { width: 1122px; height: 794px; border: 25px solid black; padding: 30px; display: flex; flex-direction: column; align-items: center; justify-content: flex-start; text-align: center; }
         .nm-logo-txt { font-size: 40px; font-weight: 900; margin-bottom: 10px; border-bottom: 3px solid #000; width: 100%; padding-bottom: 10px; }
         .nm-logo-img { max-height: 60px; margin-bottom: 10px; }
@@ -144,15 +144,10 @@
                         <label class="btn btn-outline-dark">
                           <input type="radio" name="logoType" value="txt" onchange="sync()"> TEKST
                         </label>
-                        <label class="btn btn-outline-dark">
-                          <input type="radio" name="logoType" value="none" onchange="sync()"> BRAK
-                        </label>
                       </div>
 
-                     <div id="brand-text-input-wrap">
-                        <label class="small font-weight-bold">TEKST NAGŁÓWKA:</label>
-                        <input type="text" id="brandInput" class="form-control" placeholder="Np. ENPROM Sp. z o.o." value="ENPROM" onkeyup="sync()">
-                     </div>
+                     <label class="small font-weight-bold">TEKST NAGŁÓWKA (jeśli wybrano tekst):</label>
+                     <input type="text" id="brandInput" class="form-control" placeholder="Np. ENPROM Sp. z o.o." value="ENPROM" onkeyup="sync()">
                 </div>
             </div>
 
@@ -343,7 +338,7 @@
             r.innerHTML = `
                 <div id="res-brand-container" style="width: 100%">
                     <img id="res-brand-img" class="nm-logo-img" src="ENPROM.jpg" crossorigin="anonymous" style="display:none">
-                    <div id="res-brand-txt" class="nm-logo-txt" style="display:none">ENPROM</div>
+                    <div id="res-brand-txt" class="nm-logo-txt">ENPROM</div>
                 </div>
                 <div id="res-code" class="nm-code"></div>
                 <div id="res-name" class="nm-name"></div>
@@ -401,13 +396,16 @@
             const resContent = document.getElementById('res-content');
             const imgBin = document.getElementById('res-img-bin');
             const imgIcon = document.getElementById('res-img-icon');
-            const brandCont = document.getElementById('res-brand-container');
 
             if (isCommunal) {
+                // Aplikacja subtelnego koloru tła (gradient) i obramowania
                 renderEl.style.background = `linear-gradient(180deg, ${currentWaste.color || "#ffffff"} 0%, #ffffff 60%)`;
                 renderEl.style.borderColor = currentWaste.border || "black";
-                brandCont.style.display = 'none'; // USUWA NAGŁÓWEK NA KOMUNALNYCH
+
                 resContent.style.display = 'none';
+                document.getElementById('res-brand-img').style.display = 'none';
+                document.getElementById('res-brand-txt').style.display = 'block';
+                document.getElementById('res-brand-txt').innerText = "ENPROM";
                 
                 if(currentWaste.yes) {
                     document.getElementById('res-communal-desc').style.display = 'flex';
@@ -424,7 +422,7 @@
             } else {
                 renderEl.style.background = "white";
                 renderEl.style.borderColor = "black";
-                brandCont.style.display = 'block';
+
                 resContent.style.display = 'block';
                 resContent.innerText = contentText || "---";
                 document.getElementById('res-communal-desc').style.display = 'none';
@@ -432,22 +430,13 @@
                 imgIcon.style.display = 'none';
                 
                 const logoType = document.querySelector('input[name="logoType"]:checked').value;
-                const logoImg = document.getElementById('res-brand-img');
-                const logoTxt = document.getElementById('res-brand-txt');
-                const brandInputWrap = document.getElementById('brand-text-input-wrap');
-
                 if(logoType === 'img') {
-                    logoImg.style.display = 'inline-block';
-                    logoTxt.style.display = 'none';
-                    brandInputWrap.style.display = 'none';
-                } else if(logoType === 'txt') {
-                    logoImg.style.display = 'none';
-                    logoTxt.style.display = 'block';
-                    logoTxt.innerText = document.getElementById('brandInput').value || "ENPROM";
-                    brandInputWrap.style.display = 'block';
+                    document.getElementById('res-brand-img').style.display = 'inline-block';
+                    document.getElementById('res-brand-txt').style.display = 'none';
                 } else {
-                    brandCont.style.display = 'none'; // BRAK NAGŁÓWKA
-                    brandInputWrap.style.display = 'none';
+                    document.getElementById('res-brand-img').style.display = 'none';
+                    document.getElementById('res-brand-txt').style.display = 'block';
+                    document.getElementById('res-brand-txt').innerText = document.getElementById('brandInput').value || "ENPROM";
                 }
             }
         }
