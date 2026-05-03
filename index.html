@@ -49,12 +49,15 @@
         
         #label-render.danger-mode { width: 794px; height: 1122px; border: 15px solid red; padding: 30px; display: block; position: absolute; }
         .dg-title { font-size: 52px; font-weight: 900; text-align: center; margin-bottom: 20px; }
-        .dg-row { border: 2px solid black; margin-bottom: -2px; padding: 10px 15px; }
+        .dg-row { border: 2px solid black; margin-bottom: -2px; padding: 10px 15px; position: relative; }
         .dg-label { font-size: 18px; font-weight: bold; display: block; color: #000; text-transform: uppercase; }
         .dg-value-code { font-size: 95px; font-weight: 900; line-height: 1; }
         .dg-value-name { font-size: 32px; font-weight: 800; min-height: 70px; line-height: 1.1; }
         .dg-value-content { font-size: 30px; font-weight: 700; min-height: 110px; line-height: 1.1; }
         
+        /* Piktogram dla niebezpiecznych */
+        .dg-piktogram { position: absolute; right: 15px; top: 10px; max-height: 120px; }
+
         .dg-table { width: 100%; border-collapse: collapse; margin-top: 0px; }
         .dg-table th { border: 2px solid black; padding: 8px; width: 50%; font-size: 15px; text-align: center; background: #f9f9f9; height: 80px; }
         .dg-table td { border: 2px solid black; padding: 10px; font-size: 20px; font-weight: 900; height: 110px; text-align: center; vertical-align: middle; }
@@ -187,18 +190,19 @@
 
 <script>
     const WASTES = [
-        { code: "15 01 10*", name: "Opakowania zanieczyszczone subst. niebezpiecznymi", items: ["POJEMNIKI PO FARBACH", "OPAKOWANIA PO SMARACH", "AEROZOLE", "BAŃKI PO CHEMII"] },
-        { code: "15 02 02*", name: "Sorbenty, czyściwo, ubrania ochronne (skażone)", items: ["SZMATY OLEJOWE", "SORBENT", "FILTRY OLEJU", "ZUŻYTE RĘKAWICE"] },
+        { code: "15 01 10*", name: "Opakowania zanieczyszczone subst. niebezpiecznymi", items: ["POJEMNIKI PO FARBACH", "OPAKOWANIA PO SMARACH", "AEROZOLE", "BAŃKI PO CHEMII"], piktogram: "img/150110.jpeg" },
+        { code: "15 02 02*", name: "Sorbenty, czyściwo, ubrania ochronne (skażone)", items: ["SZMATY OLEJOWE", "SORBENT", "FILTRY OLEJU", "ZUŻYTE RĘKAWICE"], piktogram: "img/150202.jpeg" },
         { code: "16 02 13*", name: "Zużyte urządzenia (niebezpieczne)", items: ["KOMPUTERY/MONITORY", "ELEKTRONARZĘDZIA", "TRANSFORMATORY"] },
         { code: "17 04 10*", name: "Kable zawierające ropę, smołę", items: ["KABLE OLEJOWE", "KABLE SMOLOWANE"] },
         { code: "16 06 01*", name: "Baterie i akumulatory ołowiowe", items: ["AKUMULATORY POJAZDOWE", "BATERIE UPS"] },
         { code: "17 04 07", name: "Mieszaniny metali", items: ["METALE KOLOROWE", "ZŁOM MIESZANY", "ELEMENTY OSPRZĘTU"] },
-        { code: "17 04 11", name: "Kable inne niż 17 04 10", items: ["KABLE CU (MIEDŹ)", "KABLE AL (ALUMINIUM)", "KABLE IZOLOWANE"] },
-        { code: "17 04 05", name: "Żelazo i stal", items: ["KONSTRUKCJE STALOWE", "RURY I PROFILE", "PRĘTY ZBROJENIOWE"], piktogram: "170405.png" },
+        { code: "17 04 11", name: "Kable inne niż 17 04 10", items: ["KABLE CU (MIEDŹ)", "KABLE AL (ALUMINIUM)", "KABLE IZOLOWANE"], piktogram: "img2/170411.png" },
+        { code: "17 04 05", name: "Żelazo i stal", items: ["KONSTRUKCJE STALOWE", "RURY I PROFILE", "PRĘTY ZBROJENIOWE"], piktogram: "img2/170405.png" },
         { code: "17 02 01", name: "Drewno", items: ["PALETY EURO", "USZKODZONE SKRZYNIE", "DESKI SZALUNKOWE"] },
+        { code: "17 05 04", name: "Gleba i ziemia (inne niż 17 05 03)", items: ["ZIEMIA Z WYKOPÓW", "KAMIEŃ", "UROBEK"] },
         { code: "17 09 04", name: "Zmieszane odpady z budowy", items: ["GRUZ", "CERAMIKA", "PŁYTY G-K"] },
-        { code: "15 01 01", name: "Opakowania z papieru i tektury", items: ["KARTONY", "PAPIER PAKOWY", "TULEJE"] },
-        { code: "15 01 02", name: "Opakowania z tworzyw sztucznych", items: ["FOLIA STRETCH", "BAŃKI CZYSTE", "BUTELKI PET", "PALETY PLASTIKOWE"] },
+        { code: "15 01 01", name: "Opakowania z papieru i tektury", items: ["KARTONY", "PAPIER PAKOWY", "TULEJE"], piktogram: "img/150101.jpeg" },
+        { code: "15 01 02", name: "Opakowania z tworzyw sztucznych", items: ["FOLIA STRETCH", "BAŃKI CZYSTE", "BUTELKI PET", "PALETY PLASTIKOWE"], piktogram: "img/150102.jpeg" },
     ];
 
     const COMMUNAL = [
@@ -315,7 +319,11 @@
             r.className = "danger-mode";
             r.innerHTML = `
                 <div class="dg-title">ODPADY NIEBEZPIECZNE</div>
-                <div class="dg-row"><span class="dg-label">KOD ODPADU</span><div id="res-code" class="dg-value-code"></div></div>
+                <div class="dg-row">
+                    <span class="dg-label">KOD ODPADU</span>
+                    <div id="res-code" class="dg-value-code"></div>
+                    <img id="res-img-piktogram-danger" class="dg-piktogram" src="" crossorigin="anonymous" style="display:none">
+                </div>
                 <div class="dg-row"><span class="dg-label">RODZAJ MAGAZYNOWANYCH ODPADÓW</span><div id="res-name" class="dg-value-name"></div></div>
                 <div class="dg-row"><span class="dg-label">ZAWARTOŚĆ</span><div id="res-content" class="dg-value-content"></div></div>
                 <table class="dg-table">
@@ -377,6 +385,11 @@
             document.getElementById('res-code').innerText = currentWaste.code || "";
             document.getElementById('res-name').innerText = (currentWaste.name || "").toUpperCase();
             document.getElementById('res-content').innerText = contentText || "---";
+            
+            const pikto = document.getElementById('res-img-piktogram-danger');
+            if(currentWaste.piktogram) { pikto.src = currentWaste.piktogram; pikto.style.display = 'block'; }
+            else { pikto.style.display = 'none'; }
+
             const zip = [1,2,3,4,5].map(i => document.getElementById('z'+i).value).join('');
             const fullZip = zip.length >= 2 ? zip.substring(0,2)+'-'+zip.substring(2) : zip;
             const addr = [fullZip, document.getElementById('cityInput').value, document.getElementById('streetInput').value].filter(Boolean).join(', ');
