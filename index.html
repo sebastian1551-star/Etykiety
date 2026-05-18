@@ -222,7 +222,6 @@
 <div id="label-render"></div>
 
 <script>
-    // Ścieżki piktogramów zaktualizowane bezpośrednio do nazw plików z repozytorium
     const WASTES = [
         { code: "15 01 10*", name: "opakowania zawierające pozostałości substancji niebezpiecznych lub nimi zanieczyszczone", items: ["POJEMNIKI PO FARBACH", "OPAKOWANIA PO SMARACH", "AEROZOLE", "BAŃKI PO CHEMII"], piktogram: "150110.jpeg" },
         { code: "15 02 02*", name: "Sorbenty, materiały filtracyjne (w tym filtry olejowe nieujęte w innych grupach), tkaniny do wycierania (np. szmaty, ścierki) i ubrania ochronne zanieczyszczone substancjami niebezpiecznymi (np. PCB) ", items: ["SZMATY OLEJOWE", "SORBENT", "FILTRY OLEJU", "ZUŻYTE RĘKAWICE"], piktogram: "150202.jpeg" },
@@ -249,7 +248,7 @@
         { code: "20 02 01", name: "BIO", img: "bio.jpg", icon: "img2/bio.jpeg", yes: "Obierki, resztki owoców i warzyw, skoszona trawa, gałęzie", no: "Kości, mięso, odchody zwierząt, ziemia, kamienie" }
     ];
 
-    const BOARDS = ["Magazyn chemiczny", "Butle puste", "Butle pełne", "Magazyn butli gazowych", "Magazyn chemii niebezpiecznej", "Niebezpieczne substancje/mieszaniny (dangerous substances and mixtures)","APTECZKA ADR", "ODPADY NIEBEZPIECZNE", "STREFA MAGAZYNOWANIA ODPADÓW", "PUNKT ZBIERANIA ODPADÓW", "MIEJSCE GROMADZENIA ODPADÓW", "ZAKAZ PALENIA"];
+    const BOARDS = ["Butle puste", "Butle pełne", "Magazyn butli gazowych", "Magazyn chemii niebezpiecznej", "Niebezpieczne substancje/mieszaniny (dangerous substances and mixtures)","APTECZKA ADR", "ODPADY NIEBEZPIECZNE", "STREFA MAGAZYNOWANIA ODPADÓW", "PUNKT ZBIERANIA ODPADÓW", "MIEJSCE GROMADZENIA ODPADÓW", "ZAKAZ PALENIA"];
     
     const LOCATIONS = [
         { name: "Ustka (Duninowo)", zip: "76270", street: "Duninowo 39" },
@@ -522,6 +521,7 @@
                 
                 document.getElementById('res-content').innerText = selectedItems.join(', ') || "---";
                 
+                // NAPRAWIONO: Dodano obsługę wyświetlania piktogramów dla odpadów standardowych (np. 15 01 01)
                 if(currentWaste.piktogram) {
                     piktoNormal.src = currentWaste.piktogram;
                     piktoNormal.style.display = 'block';
