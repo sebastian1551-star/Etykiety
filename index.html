@@ -138,7 +138,7 @@
                 <div class="section-title"><span>A</span> ZAWARTOŚĆ / PARAMETRY</div>
                 
                 <div id="live-catalog-search-area" style="display:none;" class="p-3 mb-3 border rounded bg-light">
-                    <label class="small font-weight-bold text-primary">WYSZUKAJ ODPAD W CAŁEJ OFICJALNEJ BAZIE:</label>
+                    <label class="small font-weight-bold text-primary">WYSZUKAJ ODPAD W CAŁEJ OFICJALNEj BAZIE:</label>
                     <input type="text" id="catalogSearchInput" class="form-control form-control-lg" placeholder="Wpisz słowo (np. gruz, kabel, olej) lub kod..." onkeyup="filterKatalogBaza(this.value)">
                     <div id="search-results" class="search-results-box"></div>
                 </div>
@@ -223,7 +223,6 @@
 <div id="label-render"></div>
 
 <script>
-    // Szybki panel podręczny najczęstszych wyborów [cite: 110]
     const WASTES = [
         { code: "15 01 10*", name: "opakowania zawierające pozostałości substancji niebezpiecznych lub nimi zanieczyszczone", items: ["POJEMNIKI PO FARBACH", "OPAKOWANIA PO SMARACH", "AEROZOLE", "BAŃKI PO CHEMII"], piktogram: "150110.jpeg" },
         { code: "15 02 02*", name: "Sorbenty, materiały filtracyjne (w tym filtry olejowe nieujęte w innych grupach), tkaniny do wycierania (np. szmaty, ścierki) i ubrania ochronne zanieczyszczone substancjami niebezpiecznymi (np. PCB) ", items: ["SZMATY OLEJOWE", "SORBENT", "FILTRY OLEJU", "ZUŻYTE RĘKAWICE"], piktogram: "150202.jpeg" },
@@ -242,7 +241,6 @@
         { code: "15 01 02", name: "Opakowania z tworzyw sztucznych", items: ["FOLIA STRETCH", "BAŃKI CZYSTE", "BUTELKI PET", "PALETY PLASTIKOWE"], piktogram: "150102.jpeg" },
     ];
 
-    // Kompleksowa baza danych wszystkich grup Katalogu Odpadów do dynamicznego zaciągania
     const PEŁNA_BAZA_KATALOGU = [
         { code: "01 04 08", name: "Odpadowy żwir lub pokruszone skały inne niż wymienione w 01 04 07" },
         { code: "01 04 09", name: "Odpadowe piaski i iły" },
@@ -419,11 +417,9 @@
         renderLabelTemplate();
         document.getElementById('live-catalog-search-area').style.display = 'block';
         
-        // Próba automatycznego podpięcia piktogramu, jeśli istnieje lokalny plik z takim kodem
         const cleanCode = code.replace(/\s+/g, '').replace('*', '');
         currentWaste.piktogram = isDangerous ? `${cleanCode}.jpeg` : (["170411", "170405", "170201", "170102", "170504", "170904", "150101", "150102"].includes(cleanCode) ? `${cleanCode}.jpeg` : null);
         
-        // Jeżeli to plik .png, skoryguj rozszerzenie
         if (["170405", "170201", "170102", "170504", "170904"].includes(cleanCode)) {
             currentWaste.piktogram = `${cleanCode}.png`;
         }
@@ -603,6 +599,21 @@
             const ico = document.getElementById('res-img-icon');
             const piktoNormal = document.getElementById('res-img-piktogram');
             
+            // POPRAWIONO: Kontener z logo ENPROM (res-brand-container) zostaje widoczny również dla komunalnych
+            document.getElementById('res-brand-container').style.display = 'block';
+            
+            // Domyślne sterowanie widocznością logotypu nagłówka na podstawie opcji (lub wymuszenie dla komunalnych)
+            if (!isCommunal) {
+                const radio = document.querySelector('input[name="logoType"]:checked').value;
+                document.getElementById('res-brand-img').style.display = radio === 'img' ? 'inline-block' : 'none';
+                document.getElementById('res-brand-txt').style.display = radio === 'txt' ? 'block' : 'none';
+                document.getElementById('res-brand-txt').innerText = document.getElementById('brandInput').value || "ENPROM";
+            } else {
+                // Dla komunalnych wymuszamy domyślnie wyświetlanie graficznego LOGO obrazkowego
+                document.getElementById('res-brand-img').style.display = 'inline-block';
+                document.getElementById('res-brand-txt').style.display = 'none';
+            }
+            
             if (isCommunal) {
                 document.getElementById('res-content').style.display = 'none';
                 document.getElementById('res-communal-desc').style.display = 'flex';
@@ -614,12 +625,9 @@
                 ico.src = currentWaste.icon; 
                 ico.style.display = 'block';
                 piktoNormal.style.display = 'none';
-                
-                document.getElementById('res-brand-container').style.display = 'none';
             } else {
                 document.getElementById('res-content').style.display = 'block';
                 document.getElementById('res-communal-desc').style.display = 'none';
-                document.getElementById('res-brand-container').style.display = 'block';
                 
                 let selectedItems = Array.from(document.querySelectorAll('.checkbox-item.checked')).map(el => el.innerText);
                 let manualDesc = document.getElementById('contentInput').value.trim().toUpperCase();
@@ -635,11 +643,6 @@
                 }
                 bin.style.display = 'none';
                 ico.style.display = 'none';
-                
-                const radio = document.querySelector('input[name="logoType"]:checked').value;
-                document.getElementById('res-brand-img').style.display = radio === 'img' ? 'inline-block' : 'none';
-                document.getElementById('res-brand-txt').style.display = radio === 'txt' ? 'block' : 'none';
-                document.getElementById('res-brand-txt').innerText = document.getElementById('brandInput').value || "ENPROM";
             }
         }
     }
