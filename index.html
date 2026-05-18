@@ -53,23 +53,23 @@
         .dg-row { border: 2px solid black; margin-bottom: -2px; padding: 10px 15px; position: relative; }
         .dg-label { font-size: 18px; font-weight: bold; display: block; color: #000; text-transform: uppercase; }
         .dg-value-code { font-size: 95px; font-weight: 900; line-height: 1; }
-        .dg-value-name { font-size: 32px; font-weight: 800; min-height: 70px; line-height: 1.1; }
+        .dg-value-name { font-size: 32px; font-weight: 800; min-height: 70px; line-height: 1.1; padding-right: 140px; }
         .dg-value-content { font-size: 30px; font-weight: 700; min-height: 110px; line-height: 1.1; }
-        .dg-piktogram { position: absolute; right: 15px; top: 10px; max-height: 120px; }
+        .dg-piktogram { position: absolute; right: 15px; top: 10px; max-height: 120px; max-width: 120px; object-fit: contain; }
         
         .dg-table { width: 100%; border-collapse: collapse; margin-top: 0px; }
         .dg-table th { border: 2px solid black; padding: 6px; width: 50%; font-size: 14px; text-align: center; background: #f9f9f9; height: 50px; text-transform: uppercase; font-weight: 800; }
         .dg-table td { border: 2px solid black; padding: 8px; font-size: 18px; font-weight: 900; height: 85px; text-align: center; vertical-align: middle; }
 
-        /* MODE: NORMAL (Zoptymalizowany pod kątem wypełnienia i dużych tekstów) */
+        /* MODE: NORMAL */
         #label-render.normal-mode { width: 1122px; height: 794px; border: 30px solid black; padding: 40px; display: flex; flex-direction: column; align-items: center; justify-content: space-between; text-align: center; position: absolute; }
         .nm-logo-txt { font-size: 50px; font-weight: 900; margin-bottom: 5px; border-bottom: 5px solid #000; width: 100%; padding-bottom: 10px; text-transform: uppercase; letter-spacing: 2px; }
-        .nm-logo-img { max-height: 80px; margin-bottom: 5px; }
+        .nm-logo-img { max-height: 80px; margin-bottom: 5px; object-fit: contain; }
         .nm-code { font-size: 140px; font-weight: 900; line-height: 0.95; margin-top: 10px; letter-spacing: -2px; }
         .nm-name { font-size: 64px; font-weight: 900; text-transform: uppercase; line-height: 1.1; color: #000; margin-top: 10px; margin-bottom: 10px; word-wrap: break-word; width: 100%; }
         .nm-content { font-size: 45px; font-weight: 800; border-top: 6px solid black; padding-top: 20px; width: 100%; min-height: 70px; line-height: 1.2; margin-top: auto; }
         .nm-icons-row { display: flex; align-items: center; justify-content: center; width: 100%; margin: 10px 0; gap: 60px; margin-top: auto; }
-        .nm-icon { max-height: 280px; object-fit: contain; }
+        .nm-icon { max-height: 280px; max-width: 280px; object-fit: contain; }
 
         /* MODE: BOARD */
         #label-render.board-mode { width: 1122px; height: 794px; border: 25px solid black; display: flex; align-items: center; justify-content: center; position: absolute; }
@@ -222,9 +222,10 @@
 <div id="label-render"></div>
 
 <script>
+    // Baza danych rozszerzona o prawidłowe ścieżki piktogramów ze struktur plików
     const WASTES = [
-        { code: "15 01 10*", name: "opakowania zawierające pozostałości substancji niebezpiecznych lub nimi zanieczyszczone", items: ["POJEMNIKI PO FARBACH", "OPAKOWANIA PO SMARACH", "AEROZOLE", "BAŃKI PO CHEMII"], piktogram: "img/150110.jpeg" },
-        { code: "15 02 02*", name: "Sorbenty, materiały filtracyjne (w tym filtry olejowe nieujęte w innych grupach), tkaniny do wycierania (np. szmaty, ścierki) i ubrania ochronne zanieczyszczone substancjami niebezpiecznymi (np. PCB) ", items: ["SZMATY OLEJOWE", "SORBENT", "FILTRY OLEJU", "ZUŻYTE RĘKAWICE"], piktogram: "img/150202.jpeg" },
+        { code: "15 01 10*", name: "opakowania zawierające pozostałości substancji niebezpiecznych lub nimi zanieczyszczone", items: ["POJEMNIKI PO FARBACH", "OPAKOWANIA PO SMARACH", "AEROZOLE", "BAŃKI PO CHEMII"], piktogram: "150110.jpeg" },
+        { code: "15 02 02*", name: "Sorbenty, materiały filtracyjne (w tym filtry olejowe nieujęte w innych grupach), tkaniny do wycierania (np. szmaty, ścierki) i ubrania ochronne zanieczyszczone substancjami niebezpiecznymi (np. PCB) ", items: ["SZMATY OLEJOWE", "SORBENT", "FILTRY OLEJU", "ZUŻYTE RĘKAWICE"], piktogram: "150202.jpeg" },
         { code: "16 02 13*", name: "Zużyte urządzenia (niebezpieczne)", items: ["KOMPUTERY/MONITORY", "ELEKTRONARZĘDZIA", "TRANSFORMATORY"] },
         { code: "17 04 10*", name: " Kable zawierające ropę naftową, smołę i inne substancje niebezpieczne ", items: ["KABLE OLEJOWE", "KABLE SMOLOWANE"] },
         { code: "16 06 01*", name: "Baterie i akumulatory ołowiowe", items: ["AKUMULATORY POJAZDOWE", "BATERIE UPS"] },
@@ -236,16 +237,17 @@
         { code: "17 01 02", name: "Cegły", items: ["CEGŁA PEŁNA", "GRUZ CEGLANY", "PUSTAKI"], piktogram: "170102.png" },
         { code: "17 05 04", name: "Gleba i ziemia (inne niż 17 05 04)", items: ["ZIEMIA Z WYKOPÓW", "KAMIEŃ", "UROBEK"], piktogram: "170504.png" },
         { code: "17 09 04", name: "Zmieszane odpady z budowy, remontów i demontażu inne niż wymienione w 17 09 01, 17 09 02 i 17 09 03 ", items: ["GRUZ", "CERAMIKA", "PŁYTY G-K"], piktogram: "170904.png" },
-        { code: "15 01 01", name: "Opakowania z papieru i tektury", items: ["KARTONY", "PAPIER PAKOWY", "TULEJE"], piktogram: "img/150101.jpeg" },
-        { code: "15 01 02", name: "Opakowania z tworzyw sztucznych", items: ["FOLIA STRETCH", "BAŃKI CZYSTE", "BUTELKI PET", "PALETY PLASTIKOWE"], piktogram: "img/150102.jpeg" },
+        { code: "15 01 01", name: "Opakowania z papieru i tektury", items: ["KARTONY", "PAPIER PAKOWY", "TULEJE"], piktogram: "150101.jpeg" },
+        { code: "15 01 02", name: "Opakowania z tworzyw sztucznych", items: ["FOLIA STRETCH", "BAŃKI CZYSTE", "BUTELKI PET", "PALETY PLASTIKOWE"], piktogram: "150102.jpeg" },
     ];
 
+    // Zsynchronizowana struktura rozszerzeń plików graficznych frakcji komunalnych (img vs jpeg)
     const COMMUNAL = [
-        { code: "20 01 01", name: "PAPIER", img: "img/papier.jpg", icon: "img2/papier.jpeg", yes: "Karton, gazety, ulotki, zeszyty, papier biurowy", no: "Brudny papier, ręczniki papierowe, kartony po mleku" },
-        { code: "20 01 02", name: "SZKŁO", img: "img/szklo.jpg", icon: "img2/szkło.jpeg", yes: "Butelki po napojach, słoiki po żywności, szklane opakowania", no: "Ceramika, lustra, szyby, żarówki, termometry" },
-        { code: "20 01 39", name: "PLASTIK / METAL", img: "img/plastik.jpg", icon: "img2/plastik.jpeg", yes: "Zgniecione butelki PET, puszki, folia, kapsle, nakrętki", no: "Opakowania po lekach, baterie, puszki po farbach" },
-        { code: "20 03 01", name: "ZMIESZANE", img: "img/zmieszane.jpg", icon: "img2/zmieszane.jpeg", yes: "Ręczniki papierowe, zużyte maseczki, resztki jedzenia (mięsne)", no: "Odpady niebezpieczne, elektroodpady, gruz, baterie" },
-        { code: "20 02 01", name: "BIO", img: "img/bio.jpg", icon: "img2/bio.jpeg", yes: "Obierki, resztki owoców i warzyw, skoszona trawa, gałęzie", no: "Kości, mięso, odchody zwierząt, ziemia, kamienie" }
+        { code: "20 01 01", name: "PAPIER", img: "papier.jpg", icon: "img2/papier.jpeg", yes: "Karton, gazety, ulotki, zeszyty, papier biurowy", no: "Brudny papier, ręczniki papierowe, kartony po mleku" },
+        { code: "20 01 02", name: "SZKŁO", img: "szklo.jpg", icon: "img2/szkło.jpeg", yes: "Butelki po napojach, słoiki po żywności, szklane opakowania", no: "Ceramika, lustra, szyby, żarówki, termometry" },
+        { code: "20 01 39", name: "PLASTIK / METAL", img: "plastik.jpg", icon: "img2/plastik.jpeg", yes: "Zgniecione butelki PET, puszki, folia, kapsle, nakrętki", no: "Opakowania po lekach, baterie, puszki po farbach" },
+        { code: "20 03 01", name: "ZMIESZANE", img: "zmieszane.jpg", icon: "img2/zmieszane.jpeg", yes: "Ręczniki papierowe, zużyte maseczki, resztki jedzenia (mięsne)", no: "Odpady niebezpieczne, elektroodpady, gruz, baterie" },
+        { code: "20 02 01", name: "BIO", img: "bio.jpg", icon: "img2/bio.jpeg", yes: "Obierki, resztki owoców i warzyw, skoszona trawa, gałęzie", no: "Kości, mięso, odchody zwierząt, ziemia, kamienie" }
     ];
 
     const BOARDS = ["Butle puste", "Butle pełne", "Magazyn butli gazowych", "Magazyn chemii niebezpiecznej", "Niebezpieczne substancje/mieszaniny (dangerous substances and mixtures)","APTECZKA ADR", "ODPADY NIEBEZPIECZNE", "STREFA MAGAZYNOWANIA ODPADÓW", "PUNKT ZBIERANIA ODPADÓW", "MIEJSCE GROMADZENIA ODPADÓW", "ZAKAZ PALENIA"];
@@ -397,9 +399,7 @@
                 <div class="dg-row">
                     <span class="dg-label">KOD ODPADU</span>
                     <div id="res-code" class="dg-value-code"></div>
-                    <div id="res-danger-piktos-container" style="position: absolute; right: 15px; top: 10px; display: flex; gap: 10px;">
-                        <img id="res-img-piktogram-danger" class="dg-piktogram" src="" crossorigin="anonymous" style="display:none; position: static; max-height: 120px;">
-                    </div>
+                    <img id="res-img-piktogram-danger" class="dg-piktogram" src="" crossorigin="anonymous" style="display:none;">
                 </div>
                 <div class="dg-row"><span class="dg-label">RODZAJ MAGAZYNOWANYCH ODPADÓW</span><div id="res-name" class="dg-value-name"></div></div>
                 <div class="dg-row"><span class="dg-label">ZAWARTOŚĆ</span><div id="res-content" class="dg-value-content"></div></div>
@@ -495,22 +495,42 @@
             document.getElementById('res-code').innerText = currentWaste.code;
             document.getElementById('res-name').innerText = currentWaste.name.toUpperCase();
             
+            const bin = document.getElementById('res-img-bin');
+            const ico = document.getElementById('res-img-icon');
+            const piktoNormal = document.getElementById('res-img-piktogram');
+            
             if (isCommunal) {
                 document.getElementById('res-content').style.display = 'none';
                 document.getElementById('res-communal-desc').style.display = 'flex';
                 document.getElementById('res-yes').innerText = currentWaste.yes;
                 document.getElementById('res-no').innerText = currentWaste.no;
-                const bin = document.getElementById('res-img-bin');
-                const ico = document.getElementById('res-img-icon');
+                
                 bin.src = currentWaste.img;
                 bin.style.display = 'block';
-                ico.src = currentWaste.icon; ico.style.display = 'block';
+                ico.src = currentWaste.icon; 
+                ico.style.display = 'block';
+                piktoNormal.style.display = 'none';
+                
+                document.getElementById('res-brand-container').style.display = 'none';
             } else {
+                document.getElementById('res-content').style.display = 'block';
+                document.getElementById('res-communal-desc').style.display = 'none';
+                document.getElementById('res-brand-container').style.display = 'block';
+                
                 let selectedItems = Array.from(document.querySelectorAll('.checkbox-item.checked')).map(el => el.innerText);
                 let manualDesc = document.getElementById('contentInput').value.trim().toUpperCase();
                 if(manualDesc) selectedItems.push(manualDesc);
                 
                 document.getElementById('res-content').innerText = selectedItems.join(', ') || "---";
+                
+                if(currentWaste.piktogram) {
+                    piktoNormal.src = currentWaste.piktogram;
+                    piktoNormal.style.display = 'block';
+                } else {
+                    piktoNormal.style.display = 'none';
+                }
+                bin.style.display = 'none';
+                ico.style.display = 'none';
                 
                 const radio = document.querySelector('input[name="logoType"]:checked').value;
                 document.getElementById('res-brand-img').style.display = radio === 'img' ? 'inline-block' : 'none';
