@@ -27,7 +27,7 @@
         .tile-normal { border-color: #28a745; color: #28a745; }
         .tile-util { border-color: #007bff; color: #007bff; background: #f0f7ff; }
         .tile-board { border-color: #ffc107; color: #856404; background: #fff3cd; }
-        .tile-custom { border-color: #dc3545; color: #dc3545; background: #fff5f5; border-style: dashed; }
+        .tile-custom { border-color: #6610f2; color: #6610f2; background: #f3f0ff; border-style: dashed; }
 
         #selected-waste-info { display: none; background: #f8f9fa; border: 2px solid #000; padding: 15px; border-radius: 12px; margin-bottom: 20px; justify-content: space-between; align-items: center; }
         #content-selection-area { display: none; border-top: 3px solid #f0f0f0; margin-top: 10px; padding-top: 25px; animation: fadeIn 0.5s; }
@@ -44,10 +44,16 @@
         #extra-fields { display: none; padding: 20px; border-radius: 15px; background: #fff5f5; border: 1px solid #ffdada; margin-top: 20px; }
         .zip-tile { width: 38px; height: 42px; text-align: center; font-weight: bold; border: 2px solid #ddd; border-radius: 6px; font-size: 1.2rem; }
 
+        /* WYSZUKIWARKA KATALOGU LIVE */
+        .search-results-box { max-height: 250px; overflow-y: auto; border: 1px solid #ccc; border-radius: 8px; background: white; margin-top: 5px; display: none; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
+        .search-item { padding: 10px 15px; cursor: pointer; border-bottom: 1px solid #eee; transition: background 0.1s; font-size: 0.9rem; text-align: left; }
+        .search-item:hover { background: #f1f3f5; }
+        .search-item .badge { font-size: 0.85rem; padding: 5px 8px; margin-right: 10px; font-family: monospace; }
+
         /* RENDERER CORE */
         #label-render { position: absolute; left: -9999px; background: white; color: black; box-sizing: border-box; }
         
-        /* MODE: DANGER (Poprawione uwzględnianie ramki wewnątrz szerokości strony) */
+        /* MODE: DANGER */
         #label-render.danger-mode { width: 794px; height: 1122px; border: 15px solid red; padding: 30px; display: block; position: absolute; box-sizing: border-box; }
         .dg-title { font-size: 52px; font-weight: 900; text-align: center; margin-bottom: 20px; }
         .dg-row { border: 2px solid black; margin-bottom: -2px; padding: 10px 15px; position: relative; box-sizing: border-box; }
@@ -97,9 +103,9 @@
     <div id="nav-tools">
         <div class="section-title"><span>1</span> TYPY ETYKIET I TABLIC</div>
         <div class="quick-select-grid">
-            <div class="quick-tile tile-util" onclick="window.open('https://sebastian1551-star.github.io/Wybierak/', '_blank')">
-                <b>📚 KATALOG ODPADÓW</b>
-                <small>Wyszukiwarka kodów</small>
+            <div class="quick-tile tile-custom" onclick="showLiveKatalogSearch()">
+                <b>🔍 KATALOG ODPADÓW (CAŁA BAZA)</b>
+                <small>Zaciągaj dowolny kod i generuj</small>
             </div>
             <div class="quick-tile tile-board" onclick="showBoards()">
                 <b>⚠️ TABLICE</b>
@@ -109,16 +115,12 @@
                 <b>♻️ KOMUNALNE</b>
                 <small>Segregacja</small>
             </div>
-            <div class="quick-tile tile-custom" onclick="showCustomWasteForm()">
-                <b>➕ WŁASNY ODPAD</b>
-                <small>Ręczne wpisanie kodu i nazwy</small>
-            </div>
         </div>
 
-        <div class="section-title"><span>2</span> ODPADY INNE NIŻ NIEBEZPIECZNE</div>
+        <div class="section-title"><span>2</span> ODPADY INNE NIŻ NIEBEZPIECZNE (SZYBKI WYBÓR)</div>
         <div class="quick-select-grid" id="grid-normal"></div>
 
-        <div class="section-title"><span>3</span> ODPADY NIEBEZPIECZNE (*)</div>
+        <div class="section-title"><span>3</span> ODPADY NIEBEZPIECZNE (*) (SZYBKI WYBÓR)</div>
         <div class="quick-select-grid" id="grid-danger"></div>
     </div>
 
@@ -135,18 +137,17 @@
             <div class="col-md-6" id="content-col">
                 <div class="section-title"><span>A</span> ZAWARTOŚĆ / PARAMETRY</div>
                 
-                <div id="custom-waste-input-inputs" style="display:none;" class="p-3 mb-3 border rounded bg-light">
-                    <label class="small font-weight-bold">KOD ODPADU (dodaj * dla niebezpiecznych):</label>
-                    <input type="text" id="customCodeInput" class="form-control mb-2" placeholder="np. 16 02 14 lub 16 02 13*" onkeyup="updateCustomWasteData()">
-                    <label class="small font-weight-bold">NAZWA ODPADU:</label>
-                    <input type="text" id="customNameInput" class="form-control" placeholder="Wpisz pełną oficjalną nazwę odpadu..." onkeyup="updateCustomWasteData()">
+                <div id="live-catalog-search-area" style="display:none;" class="p-3 mb-3 border rounded bg-light">
+                    <label class="small font-weight-bold text-primary">WYSZUKAJ ODPAD W CAŁEJ OFICJALNEJ BAZIE:</label>
+                    <input type="text" id="catalogSearchInput" class="form-control form-control-lg" placeholder="Wpisz słowo (np. gruz, kabel, olej) lub kod..." onkeyup="filterKatalogBaza(this.value)">
+                    <div id="search-results" class="search-results-box"></div>
                 </div>
 
                 <div id="dynamic-checkboxes" class="checkbox-grid"></div>
               
                 <div id="manual-input-area">
                     <label class="small font-weight-bold">DODATKOWY OPIS / ZAWARTOŚĆ DETALICZNA:</label>
-                    <input type="text" id="contentInput" class="form-control form-control-lg" placeholder="Wpisz ręcznie jeśli brak powyżej..." onkeyup="sync()">
+                    <input type="text" id="contentInput" class="form-control form-control-lg" placeholder="Wpisz ręcznie szczegóły..." onkeyup="sync()">
                 </div>
 
                 <div id="normal-extra-config" style="display:none;" class="mt-4 p-3 border rounded bg-light">
@@ -222,6 +223,7 @@
 <div id="label-render"></div>
 
 <script>
+    // Szybki panel podręczny najczęstszych wyborów [cite: 110]
     const WASTES = [
         { code: "15 01 10*", name: "opakowania zawierające pozostałości substancji niebezpiecznych lub nimi zanieczyszczone", items: ["POJEMNIKI PO FARBACH", "OPAKOWANIA PO SMARACH", "AEROZOLE", "BAŃKI PO CHEMII"], piktogram: "150110.jpeg" },
         { code: "15 02 02*", name: "Sorbenty, materiały filtracyjne (w tym filtry olejowe nieujęte w innych grupach), tkaniny do wycierania (np. szmaty, ścierki) i ubrania ochronne zanieczyszczone substancjami niebezpiecznymi (np. PCB) ", items: ["SZMATY OLEJOWE", "SORBENT", "FILTRY OLEJU", "ZUŻYTE RĘKAWICE"], piktogram: "150202.jpeg" },
@@ -238,6 +240,72 @@
         { code: "17 09 04", name: "Zmieszane odpady z budowy, remontów i demontażu inne niż wymienione w 17 09 01, 17 09 02 i 17 09 03 ", items: ["GRUZ", "CERAMIKA", "PŁYTY G-K"], piktogram: "170904.png" },
         { code: "15 01 01", name: "Opakowania z papieru i tektury", items: ["KARTONY", "PAPIER PAKOWY", "TULEJE"], piktogram: "150101.jpeg" },
         { code: "15 01 02", name: "Opakowania z tworzyw sztucznych", items: ["FOLIA STRETCH", "BAŃKI CZYSTE", "BUTELKI PET", "PALETY PLASTIKOWE"], piktogram: "150102.jpeg" },
+    ];
+
+    // Kompleksowa baza danych wszystkich grup Katalogu Odpadów do dynamicznego zaciągania
+    const PEŁNA_BAZA_KATALOGU = [
+        { code: "01 04 08", name: "Odpadowy żwir lub pokruszone skały inne niż wymienione w 01 04 07" },
+        { code: "01 04 09", name: "Odpadowe piaski i iły" },
+        { code: "02 01 04", name: "Odpady z tworzyw sztucznych (z wyłączeniem opakowań)" },
+        { code: "03 01 05", name: "Trociny, wióry, ścinki, drewno, płyty wiórowe i fornir inne niż wymienione w 03 01 04" },
+        { code: "08 01 11*", name: "Odpady farb i lakierów zawierających rozpuszczalniki organiczne lub inne substancje niebezpieczne" },
+        { code: "08 01 12", name: "Odpady farb i lakierów inne niż wymienione w 08 01 11" },
+        { code: "12 01 01", name: "Odpady z toczenia i piłowania żelaza oraz jego stopów" },
+        { code: "12 01 09*", name: "Odpadowe emulsje i roztwory wodne niezawierające chlorowców" },
+        { code: "13 01 10*", name: "Mineralne oleje hydrauliczne niezawierające chlorowców" },
+        { code: "13 02 05*", name: "Mineralne oleje silnikowe, przekładniowe i smarowe niezawierające chlorowców" },
+        { code: "13 05 02*", name: "Szlamy z odwadniania olejów w separatorach" },
+        { code: "13 07 01*", name: "Olej opałowy i olej napędowy" },
+        { code: "14 06 03*", name: "Inne rozpuszczalniki i mieszaniny rozpuszczalników" },
+        { code: "15 01 01", name: "Opakowania z papieru i tektury" },
+        { code: "15 01 02", name: "Opakowania z tworzyw sztucznych" },
+        { code: "15 01 03", name: "Opakowania z drewna" },
+        { code: "15 01 04", name: "Opakowania z metalu" },
+        { code: "15 01 05", name: "Opakowania wielomateriałowe" },
+        { code: "15 01 07", name: "Opakowania ze szkła" },
+        { code: "15 01 10*", name: "Opakowania zawierające pozostałości substancji niebezpiecznych lub nimi zanieczyszczone" },
+        { code: "15 02 02*", name: "Sorbenty, materiały filtracyjne, tkaniny do wycierania i ubrania ochronne zanieczyszczone substancjami niebezpiecznymi" },
+        { code: "15 02 03", name: "Sorbenty, materiały filtracyjne, tkaniny do wycierania i ubrania ochronne inne niż wymienione w 15 02 02" },
+        { code: "16 01 03", name: "Zużyte opony" },
+        { code: "16 01 07*", name: "Filtry olejowe" },
+        { code: "16 01 17", name: "Metale żelazne (z pojazdów)" },
+        { code: "16 01 18", name: "Metale nieżelazne (z pojazdów)" },
+        { code: "16 02 13*", name: "Zużyte urządzenia zawierające niebezpieczne elementy" },
+        { code: "16 02 14", name: "Zużyte urządzenia inne niż wymienione w 16 02 09 do 16 02 13" },
+        { code: "16 02 16", name: "Elementy usunięte ze zużytych urządzeń inne niż wymienione w 16 02 15" },
+        { code: "16 06 01*", name: "Baterie i akumulatory ołowiowe" },
+        { code: "16 06 02*", name: "Baterie i akumulatory niklowo-kadmowe" },
+        { code: "16 06 04", name: "Baterie alkaliczne" },
+        { code: "16 06 05", name: "Inne baterie i akumulatory" },
+        { code: "17 01 01", name: "Odpady betonu oraz gruz betonowy z rozbiórek i remontów" },
+        { code: "17 01 02", name: "Gruz ceglany" },
+        { code: "17 01 03", name: "Odpady innych materiałów ceramicznych i elementów wyposażenia" },
+        { code: "17 01 06*", name: "Mieszaniny lub segregowane odpady z betonu, gruzu ceglanego zawierające substancje niebezpieczne" },
+        { code: "17 01 07", name: "Mieszaniny betonu, gruzu ceglanego, odpadowych materiałów ceramicznych inne niż wymienione w 17 01 06" },
+        { code: "17 02 01", name: "Drewno z budowy i demontażu" },
+        { code: "17 02 02", name: "Szkło strukturalne/budowlane" },
+        { code: "17 02 03", name: "Tworzywa sztuczne budowlane" },
+        { code: "17 02 04*", name: "Odpady drewna, szkła i tworzyw sztucznych zawierające substancje niebezpieczne" },
+        { code: "17 03 02", name: "Asfalt i mieszanki bitumiczne inne niż wymienione w 17 03 01" },
+        { code: "17 04 01", name: "Miedź, brąz, mosiądz" },
+        { code: "17 04 02", name: "Aluminium" },
+        { code: "17 04 03", name: "Ołów" },
+        { code: "17 04 04", name: "Cynk" },
+        { code: "17 04 05", name: "Żelazo i stal" },
+        { code: "17 04 06", name: "Cyna" },
+        { code: "17 04 07", name: "Mieszaniny metali" },
+        { code: "17 04 09*", name: "Odpady metalowe zanieczyszczone substancjami niebezpiecznymi" },
+        { code: "17 04 10*", name: "Kable zawierające ropę naftową, smołę i inne substancje niebezpieczne" },
+        { code: "17 04 11", name: "Kable inne niż wymienione w 17 04 10" },
+        { code: "17 05 04", name: "Gleba i ziemia, w tym kamienie, inne niż wymienione w 17 05 03" },
+        { code: "17 05 08", name: "Tłuczeń torowy (kruszywo) inny niż wymieniony w 17 05 07" },
+        { code: "17 06 04", name: "Materiały izolacyjne inne niż wymienione w 17 06 01 i 17 06 03 (np. wełna mineralna)" },
+        { code: "17 08 02", name: "Materiały konstrukcyjne zawierające gips inne niż wymienione w 17 08 01" },
+        { code: "17 09 04", name: "Zmieszane odpady z budowy, remontów i demontażu inne niż wymienione w 17 09 01, 17 09 02 i 17 09 03" },
+        { code: "20 01 21*", name: "Lampy fluorescencyjne i inne odpady zawierające rtęć" },
+        { code: "20 01 23*", name: "Urządzenia chłodnicze i klimatyzacyjne zawierające freony" },
+        { code: "20 01 35*", name: "Zużyte urządzenia elektryczne i elektroniczne inne niż wymienione w 20 01 21 i 20 01 23 zawierające niebezpieczne elementy" },
+        { code: "20 01 36", name: "Zużyte urządzenia elektryczne i elektroniczne inne niż wymienione w 20 01 21, 20 01 23 i 20 01 35" }
     ];
 
     const COMMUNAL = [
@@ -284,7 +352,7 @@
         currentMode = waste.code.includes('*') ? "danger" : "normal";
         setupUI(waste.name);
         renderLabelTemplate();
-        document.getElementById('custom-waste-input-inputs').style.display = 'none';
+        document.getElementById('live-catalog-search-area').style.display = 'none';
         document.getElementById('manual-input-area').style.display = 'block';
         document.getElementById('dynamic-checkboxes').innerHTML = (waste.items || []).map(i => 
             `<div class="checkbox-item" onclick="toggleOption(this)">${i}</div>`
@@ -292,36 +360,74 @@
         sync();
     }
 
-    function showCustomWasteForm() {
+    function showLiveKatalogSearch() {
         isCommunal = false;
         currentMode = "normal";
-        currentWaste = { code: "", name: "", items: [] };
+        currentWaste = { code: "---", name: "Zacznij pisać poniżej...", items: [] };
         
-        setupUI("Własny odpad (Wprowadzanie)");
-        document.getElementById('custom-waste-input-inputs').style.display = 'block';
+        setupUI("Wyszukiwarka Katalogu Odpadów");
+        document.getElementById('live-catalog-search-area').style.display = 'block';
         document.getElementById('manual-input-area').style.display = 'block';
         document.getElementById('dynamic-checkboxes').innerHTML = '';
+        document.getElementById('catalogSearchInput').value = '';
+        document.getElementById('search-results').style.display = 'none';
         renderLabelTemplate();
         sync();
     }
 
-    function updateCustomWasteData() {
-        const codeVal = document.getElementById('customCodeInput').value.trim();
-        const nameVal = document.getElementById('customNameInput').value.trim();
+    function filterKatalogBaza(query) {
+        const resultsBox = document.getElementById('search-results');
+        if (!query || query.trim().length < 1) {
+            resultsBox.style.display = 'none';
+            return;
+        }
+
+        const filtered = PEŁNA_BAZA_KATALOGU.filter(item => 
+            item.code.replace(/\s+/g, '').includes(query.replace(/\s+/g, '')) || 
+            item.name.toLowerCase().includes(query.toLowerCase())
+        );
+
+        if (filtered.length === 0) {
+            resultsBox.innerHTML = `<div class="search-item text-muted">Brak dopasowań w oficjalnej bazie</div>`;
+        } else {
+            resultsBox.innerHTML = filtered.map(item => {
+                const isDangerous = item.code.includes('*');
+                const badgeClass = isDangerous ? 'badge-danger' : 'badge-success';
+                return `
+                    <div class="search-item" onclick="selectFromBazaKatalogu('${item.code}', '${item.name.replace(/'/g, "\\'")}')">
+                        <span class="badge ${badgeClass}">${item.code}</span>
+                        <span>${item.name}</span>
+                    </div>
+                `;
+            }).join('');
+        }
+        resultsBox.style.display = 'block';
+    }
+
+    function selectFromBazaKatalogu(code, name) {
+        document.getElementById('search-results').style.display = 'none';
+        document.getElementById('catalogSearchInput').value = `${code} - ${name}`;
         
-        currentWaste.code = codeVal || "00 00 00";
-        currentWaste.name = nameVal || "Nazwa odpadu";
+        currentWaste.code = code;
+        currentWaste.name = name;
         
-        const isDangerous = codeVal.includes('*');
+        const isDangerous = code.includes('*');
         const targetMode = isDangerous ? "danger" : "normal";
         
-        if (currentMode !== targetMode) {
-            currentMode = targetMode;
-            setupUI(currentWaste.name);
-            renderLabelTemplate();
-            document.getElementById('custom-waste-input-inputs').style.display = 'block';
-        }
+        currentMode = targetMode;
+        setupUI(currentWaste.name);
+        renderLabelTemplate();
+        document.getElementById('live-catalog-search-area').style.display = 'block';
         
+        // Próba automatycznego podpięcia piktogramu, jeśli istnieje lokalny plik z takim kodem
+        const cleanCode = code.replace(/\s+/g, '').replace('*', '');
+        currentWaste.piktogram = isDangerous ? `${cleanCode}.jpeg` : (["170411", "170405", "170201", "170102", "170504", "170904", "150101", "150102"].includes(cleanCode) ? `${cleanCode}.jpeg` : null);
+        
+        // Jeżeli to plik .png, skoryguj rozszerzenie
+        if (["170405", "170201", "170102", "170504", "170904"].includes(cleanCode)) {
+            currentWaste.piktogram = `${cleanCode}.png`;
+        }
+
         document.getElementById('info-code').innerText = currentWaste.code;
         document.getElementById('info-name').innerText = currentWaste.name;
         sync();
@@ -332,7 +438,7 @@
         isCommunal = true;
         currentWaste = { code: "---", name: "WYBIERZ FRAKCJĘ" };
         setupUI("Odpady Komunalne");
-        document.getElementById('custom-waste-input-inputs').style.display = 'none';
+        document.getElementById('live-catalog-search-area').style.display = 'none';
         document.getElementById('manual-input-area').style.display = 'none';
         document.getElementById('dynamic-checkboxes').innerHTML = COMMUNAL.map(c => `
             <div class="checkbox-item" style="height: 100px; display: flex; align-items: center; justify-content: center;" onclick="selectCommunalItem('${c.code}', '${c.name}', '${c.img}', '${c.icon}', '${c.yes}', '${c.no}', this)">
@@ -354,7 +460,7 @@
         isCommunal = false;
         currentWaste = { code: "TABLICA", name: "Wybierz treść" };
         setupUI("Tablice Informacyjne");
-        document.getElementById('custom-waste-input-inputs').style.display = 'none';
+        document.getElementById('live-catalog-search-area').style.display = 'none';
         document.getElementById('manual-input-area').style.display = 'none';
         document.getElementById('dynamic-checkboxes').innerHTML = BOARDS.map(b => 
             `<div class="checkbox-item" onclick="selectBoard('${b}', this)">${b}</div>`
