@@ -222,7 +222,7 @@
 <div id="label-render"></div>
 
 <script>
-    // Baza danych rozszerzona o prawidłowe ścieżki piktogramów ze struktur plików
+    // Ścieżki piktogramów zaktualizowane bezpośrednio do nazw plików z repozytorium
     const WASTES = [
         { code: "15 01 10*", name: "opakowania zawierające pozostałości substancji niebezpiecznych lub nimi zanieczyszczone", items: ["POJEMNIKI PO FARBACH", "OPAKOWANIA PO SMARACH", "AEROZOLE", "BAŃKI PO CHEMII"], piktogram: "150110.jpeg" },
         { code: "15 02 02*", name: "Sorbenty, materiały filtracyjne (w tym filtry olejowe nieujęte w innych grupach), tkaniny do wycierania (np. szmaty, ścierki) i ubrania ochronne zanieczyszczone substancjami niebezpiecznymi (np. PCB) ", items: ["SZMATY OLEJOWE", "SORBENT", "FILTRY OLEJU", "ZUŻYTE RĘKAWICE"], piktogram: "150202.jpeg" },
@@ -241,7 +241,6 @@
         { code: "15 01 02", name: "Opakowania z tworzyw sztucznych", items: ["FOLIA STRETCH", "BAŃKI CZYSTE", "BUTELKI PET", "PALETY PLASTIKOWE"], piktogram: "150102.jpeg" },
     ];
 
-    // Zsynchronizowana struktura rozszerzeń plików graficznych frakcji komunalnych (img vs jpeg)
     const COMMUNAL = [
         { code: "20 01 01", name: "PAPIER", img: "papier.jpg", icon: "img2/papier.jpeg", yes: "Karton, gazety, ulotki, zeszyty, papier biurowy", no: "Brudny papier, ręczniki papierowe, kartony po mleku" },
         { code: "20 01 02", name: "SZKŁO", img: "szklo.jpg", icon: "img2/szkło.jpeg", yes: "Butelki po napojach, słoiki po żywności, szklane opakowania", no: "Ceramika, lustra, szyby, żarówki, termometry" },
