@@ -636,17 +636,29 @@
         }
     }
 
-    async function generatePDF() {
+   async function generatePDF() {
         const btn = document.getElementById('btnGen');
-        btn.innerText = "⏳ GENEROWANIE..."; btn.disabled = true;
+        btn.innerText = "⏳ GENEROWANIE..."; 
+        btn.disabled = true;
+
         try {
+            // Pobranie kodu odpadu i sformatowanie nazwy pliku
+            const code = currentWaste ? currentWaste.code : (document.getElementById('info-code') ? document.getElementById('info-code').innerText : "Etykieta");
+            const fileName = code.replace(/\s+/g, '_').replace('*', '') + ".pdf";
+
             const orient = (currentMode === "danger") ? 'p' : 'l';
             const canvas = await html2canvas(document.getElementById('label-render'), { scale: 2, useCORS: true });
             const { jsPDF } = window.jspdf;
+            
             const pdf = new jsPDF({ orientation: orient, unit: 'mm', format: 'a4' });
             pdf.addImage(canvas.toDataURL('image/jpeg', 1.0), 'JPEG', 0, 0, orient === 'p' ? 210 : 297, orient === 'p' ? 297 : 210);
-            pdf.save(`Etykieta_${currentMode}.pdf`);
-        } catch (e) { alert("Błąd generowania PDF!"); }
+            
+            pdf.save(fileName);
+        } catch (e) { 
+            console.error(e);
+            alert("Błąd generowania PDF!"); 
+        }
+        
         btn.innerText = "POBIERZ GOTOWĄ ETYKIETĘ (PDF)";
         btn.disabled = false;
     }
@@ -662,6 +674,5 @@
 
     function resetSelection() { location.reload(); }
 </script>
-
 </body>
 </html>
