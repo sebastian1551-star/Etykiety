@@ -787,6 +787,38 @@
         sync();
     }
 
+    // Automatyczne dopasowanie zawartości tablicy (tekst + piktogramy) do rozmiaru strony,
+    // tak aby nic nie wychodziło poza czarną ramkę.
+    function fitBoardContent() {
+        const box = document.getElementById('label-render');
+        const inner = document.getElementById('res-board-container');
+        const textEl = document.getElementById('res-board');
+        const imgs = Array.from(document.querySelectorAll('#res-board-pictos img'));
+        if (!box || !inner) return;
+
+        const maxHeight = box.clientHeight;
+        const maxWidth = box.clientWidth;
+
+        let scale = 1;
+        let guard = 0;
+        while ((inner.scrollHeight > maxHeight || inner.scrollWidth > maxWidth) && guard < 40) {
+            scale -= 0.04;
+            if (scale < 0.25) { scale = 0.25; guard = 40; }
+
+            if (textEl && textEl.style.display !== 'none') {
+                textEl.style.fontSize = Math.max(18, Math.round(64 * scale)) + 'px';
+            }
+            imgs.forEach((img, idx) => {
+                const base = parseFloat(img.dataset.baseSize || img.style.height) || 300;
+                if (!img.dataset.baseSize) img.dataset.baseSize = base;
+                const newSize = Math.max(50, Math.round(img.dataset.baseSize * scale));
+                img.style.height = newSize + 'px';
+                img.style.width = newSize + 'px';
+            });
+            guard++;
+        }
+    }
+
     function setupUI(title) {
         document.getElementById('nav-tools').style.display = 'none';
         document.getElementById('selected-waste-info').style.display = 'flex';
@@ -916,6 +948,7 @@
             const pictoEl = document.getElementById('res-board-pictos');
             textEl.innerText = boardText;
             textEl.style.display = boardText ? 'block' : 'none';
+            textEl.style.fontSize = '64px';
 
             const posSelect = document.getElementById('boardTextPosition');
             const position = posSelect ? posSelect.value : 'top';
@@ -935,13 +968,15 @@
                 .map(el => PICTOGRAMS[el.dataset.pictoIdx]);
             const pictoContainer = document.getElementById('res-board-pictos');
             if (pictoContainer) {
-                // Gdy wybrano tylko jeden piktogram (bez tekstu lub z tekstem), pokaż go większy
-                const singlePicto = selectedPictos.length === 1;
-                const pictoSize = singlePicto ? 480 : 320;
+                // Bazowy rozmiar piktogramu zależny od liczby wybranych (finalne dopasowanie robi fitBoardContent)
+                const count = selectedPictos.length;
+                const basePictoSize = count <= 1 ? 420 : (count === 2 ? 340 : (count === 3 ? 280 : 220));
                 pictoContainer.innerHTML = selectedPictos.map(p =>
-                    `<img src="${PICTOGRAM_BASE}${encodeURIComponent(p.file)}" style="max-height:${pictoSize}px;max-width:${pictoSize}px;object-fit:contain;" crossorigin="anonymous">`
+                    `<img src="${PICTOGRAM_BASE}${encodeURIComponent(p.file)}" style="height:${basePictoSize}px;width:${basePictoSize}px;object-fit:contain;" crossorigin="anonymous">`
                 ).join('');
             }
+
+            fitBoardContent();
         }
         else {
             document.getElementById('res-code').innerText = currentWaste.code;
