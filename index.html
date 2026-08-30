@@ -150,19 +150,10 @@
                 <!-- TABLICE: dowolny tekst + piktogramy -->
                 <div id="board-config" style="display:none;">
                     <label class="small font-weight-bold">TREŚĆ TABLICY (wpisz dowolny tekst):</label>
-                    <input type="text" id="boardTextInput" class="form-control form-control-lg mb-1" placeholder="np. Strefa niebezpieczna, odpady niebezpieczne..." oninput="handleBoardTextInput(this.value)">
-                    <div id="board-suggestions" class="search-results-box"></div>
+                    <input type="text" id="boardTextInput" class="form-control form-control-lg mb-3" placeholder="np. Strefa niebezpieczna" oninput="handleBoardTextInput(this.value)">
 
-                    <label class="small font-weight-bold d-block mt-3">PIKTOGRAMY (wybierz dowolną liczbę):</label>
+                    <label class="small font-weight-bold d-block">WYBIERZ PIKTOGRAM (dowolną liczbę):</label>
                     <div id="pictogram-grid" class="checkbox-grid"></div>
-
-                    <div class="mt-2 p-2 border rounded" style="border-style:dashed!important;">
-                        <label class="small font-weight-bold text-primary d-block mb-1">+ DODAJ WŁASNY PIKTOGRAM DO LISTY</label>
-                        <input type="text" id="newPictoName" class="form-control form-control-sm mb-1" placeholder="Nazwa wyświetlana (np. Zakaz X)">
-                        <input type="text" id="newPictoFile" class="form-control form-control-sm mb-1" placeholder="Nazwa pliku w repo (np. Zakaz X.png)">
-                        <button type="button" class="btn btn-sm btn-outline-primary mt-1" onclick="addCustomPictogram()">+ Dodaj do listy piktogramów</button>
-                        <div class="small text-muted mt-1">Plik musi znajdować się w folderze piktogramów repozytorium (zmienna <code>PICTOGRAM_BASE</code> w kodzie).</div>
-                    </div>
                 </div>
 
                 <div id="dynamic-checkboxes" class="checkbox-grid"></div>
@@ -610,7 +601,7 @@
     // === PIKTOGRAMY DLA TABLIC ===
     // WAŻNE: ustaw tu prawidłową ścieżkę do folderu z piktogramami w Twoim repozytorium GitHub
     // (albo pełny adres w stylu https://raw.githubusercontent.com/UZYTKOWNIK/REPO/main/sciezka/)
-    const PICTOGRAM_BASE = "piktogramy/";
+    const PICTOGRAM_BASE = "Piktogramy/";
     let PICTOGRAMS = [
         { name: "Zagrożenie wybuchem", file: "Zagrożenie wybuchem.png" },
         { name: "Zakaz palenia", file: "Zakaz palenia.png" },
@@ -752,7 +743,7 @@
         sync();
     }
 
-    // === TABLICE: dowolny tekst z podpowiedziami + wielokrotny wybór piktogramów ===
+    // === TABLICE: dowolny tekst + wybór piktogramu z kafelków ===
     function showBoards() {
         currentMode = "board";
         isCommunal = false;
@@ -762,7 +753,6 @@
         document.getElementById('manual-input-area').style.display = 'none';
         document.getElementById('board-config').style.display = 'block';
         document.getElementById('boardTextInput').value = '';
-        document.getElementById('board-suggestions').style.display = 'none';
         renderPictogramGrid();
         renderLabelTemplate();
         sync();
@@ -770,26 +760,6 @@
 
     function handleBoardTextInput(val) {
         currentWaste.name = val;
-        const box = document.getElementById('board-suggestions');
-        if (!val || val.trim().length < 1) {
-            box.style.display = 'none';
-            sync();
-            return;
-        }
-        const filtered = BOARDS.filter(b => b.toLowerCase().includes(val.toLowerCase()));
-        if (filtered.length === 0) {
-            box.style.display = 'none';
-        } else {
-            box.innerHTML = filtered.map(b => `<div class="search-item" onclick="pickBoardSuggestion('${b.replace(/'/g, "\\'")}')">${b}</div>`).join('');
-            box.style.display = 'block';
-        }
-        sync();
-    }
-
-    function pickBoardSuggestion(text) {
-        document.getElementById('boardTextInput').value = text;
-        document.getElementById('board-suggestions').style.display = 'none';
-        currentWaste.name = text;
         sync();
     }
 
@@ -807,18 +777,6 @@
     function togglePictogram(el) {
         el.classList.toggle('checked');
         sync();
-    }
-
-    function addCustomPictogram() {
-        const nameEl = document.getElementById('newPictoName');
-        const fileEl = document.getElementById('newPictoFile');
-        const name = nameEl.value.trim();
-        const file = fileEl.value.trim();
-        if (!name || !file) { alert('Podaj nazwę oraz nazwę pliku piktogramu.'); return; }
-        PICTOGRAMS.push({ name, file });
-        renderPictogramGrid();
-        nameEl.value = '';
-        fileEl.value = '';
     }
 
     function setupUI(title) {
