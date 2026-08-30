@@ -794,6 +794,7 @@
         const inner = document.getElementById('res-board-container');
         const textEl = document.getElementById('res-board');
         const imgs = Array.from(document.querySelectorAll('#res-board-pictos img'));
+        const labels = Array.from(document.querySelectorAll('#res-board-pictos .board-picto-label'));
         if (!box || !inner) return;
 
         const maxHeight = box.clientHeight;
@@ -808,12 +809,17 @@
             if (textEl && textEl.style.display !== 'none') {
                 textEl.style.fontSize = Math.max(18, Math.round(64 * scale)) + 'px';
             }
-            imgs.forEach((img, idx) => {
+            imgs.forEach((img) => {
                 const base = parseFloat(img.dataset.baseSize || img.style.height) || 300;
                 if (!img.dataset.baseSize) img.dataset.baseSize = base;
                 const newSize = Math.max(50, Math.round(img.dataset.baseSize * scale));
                 img.style.height = newSize + 'px';
                 img.style.width = newSize + 'px';
+            });
+            labels.forEach((lbl) => {
+                const base = parseFloat(lbl.dataset.baseFont || lbl.style.fontSize) || 22;
+                if (!lbl.dataset.baseFont) lbl.dataset.baseFont = base;
+                lbl.style.fontSize = Math.max(12, Math.round(lbl.dataset.baseFont * scale)) + 'px';
             });
             guard++;
         }
@@ -972,7 +978,10 @@
                 const count = selectedPictos.length;
                 const basePictoSize = count <= 1 ? 420 : (count === 2 ? 340 : (count === 3 ? 280 : 220));
                 pictoContainer.innerHTML = selectedPictos.map(p =>
-                    `<img src="${PICTOGRAM_BASE}${encodeURIComponent(p.file)}" style="height:${basePictoSize}px;width:${basePictoSize}px;object-fit:contain;" crossorigin="anonymous">`
+                    `<div class="board-picto-item" style="display:flex; flex-direction:column; align-items:center; gap:8px;">
+                        <img src="${PICTOGRAM_BASE}${encodeURIComponent(p.file)}" style="height:${basePictoSize}px;width:${basePictoSize}px;object-fit:contain;" crossorigin="anonymous">
+                        <span class="board-picto-label" style="font-size:22px; font-weight:800; text-align:center; text-transform:uppercase; max-width:${basePictoSize + 40}px; line-height:1.15;">${p.name}</span>
+                    </div>`
                 ).join('');
             }
 
