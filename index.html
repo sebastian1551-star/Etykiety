@@ -83,7 +83,7 @@
 
         /* MODE: BOARD */
         #label-render.board-mode { width: 1122px; height: 794px; border: 25px solid black; display: flex; align-items: center; justify-content: center; position: absolute; box-sizing: border-box; }
-        .board-text { font-size: 110px; font-weight: 900; text-align: center; text-transform: uppercase; padding: 40px; line-height: 1.1; }
+        .board-text { font-size: 64px; font-weight: 900; text-align: center; text-transform: uppercase; padding: 20px; line-height: 1.15; }
 
         .communal-desc { display: flex; width: 100%; border-top: 5px solid black; margin-top: 15px; padding-top: 15px; text-align: left; }
         .desc-box { width: 50%; padding: 0 20px; }
@@ -149,8 +149,8 @@
 
                 <!-- TABLICE: dowolny tekst + piktogramy -->
                 <div id="board-config" style="display:none;">
-                    <label class="small font-weight-bold">TREŚĆ TABLICY (wpisz dowolny tekst):</label>
-                    <input type="text" id="boardTextInput" class="form-control form-control-lg mb-3" placeholder="np. Strefa niebezpieczna" oninput="handleBoardTextInput(this.value)">
+                    <label class="small font-weight-bold">TREŚĆ TABLICY (opcjonalnie — zostaw puste, aby wydrukować sam piktogram):</label>
+                    <input type="text" id="boardTextInput" class="form-control form-control-lg mb-3" placeholder="np. Strefa niebezpieczna (lub nic, jeśli chcesz tylko piktogram)" oninput="handleBoardTextInput(this.value)">
 
                     <label class="small font-weight-bold d-block">POZYCJA NAPISU:</label>
                     <select id="boardTextPosition" class="form-control mb-3" onchange="sync()">
@@ -911,17 +911,19 @@
             document.getElementById('res-date').innerText = document.getElementById('dateInput').value;
         }
         else if (currentMode === "board") {
-            document.getElementById('res-board').innerText = currentWaste.name || "---";
+            const boardText = (currentWaste.name || "").trim();
+            const textEl = document.getElementById('res-board');
+            const pictoEl = document.getElementById('res-board-pictos');
+            textEl.innerText = boardText;
+            textEl.style.display = boardText ? 'block' : 'none';
 
             const posSelect = document.getElementById('boardTextPosition');
             const position = posSelect ? posSelect.value : 'top';
-            const textEl = document.getElementById('res-board');
-            const pictoEl = document.getElementById('res-board-pictos');
             if (textEl && pictoEl) {
                 if (position === 'bottom') {
                     textEl.style.order = '2';
                     pictoEl.style.order = '1';
-                    textEl.style.marginTop = '10px';
+                    textEl.style.marginTop = boardText ? '10px' : '0';
                 } else {
                     textEl.style.order = '1';
                     pictoEl.style.order = '2';
@@ -933,8 +935,11 @@
                 .map(el => PICTOGRAMS[el.dataset.pictoIdx]);
             const pictoContainer = document.getElementById('res-board-pictos');
             if (pictoContainer) {
+                // Gdy wybrano tylko jeden piktogram (bez tekstu lub z tekstem), pokaż go większy
+                const singlePicto = selectedPictos.length === 1;
+                const pictoSize = singlePicto ? 480 : 320;
                 pictoContainer.innerHTML = selectedPictos.map(p =>
-                    `<img src="${PICTOGRAM_BASE}${encodeURIComponent(p.file)}" style="max-height:240px;max-width:240px;object-fit:contain;" crossorigin="anonymous">`
+                    `<img src="${PICTOGRAM_BASE}${encodeURIComponent(p.file)}" style="max-height:${pictoSize}px;max-width:${pictoSize}px;object-fit:contain;" crossorigin="anonymous">`
                 ).join('');
             }
         }
